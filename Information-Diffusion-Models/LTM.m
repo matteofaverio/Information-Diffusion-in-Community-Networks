@@ -1,4 +1,6 @@
-function [finalState, totalSteps, activationHistory] = LTM_full(adjacencyMatrix, initialState, thresholdVector)
+function [finalState, totalSteps, activationHistory] = LTM(adjacencyMatrix, initialState, thresholdVector)
+
+%
 % Linear Threshold Model (LTM) Simulation Until Convergence
 %
 % Inputs:
