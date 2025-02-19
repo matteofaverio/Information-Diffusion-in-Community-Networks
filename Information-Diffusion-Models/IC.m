@@ -1,4 +1,5 @@
 function [opinions,t] = opinionProp_IC(W,v0)
+
 %opinionProp_IC simulates opinion propagation in a network using
 %Independent Cascade model
 %   [opinions, t] = opinionProp_IC(W,v0)
