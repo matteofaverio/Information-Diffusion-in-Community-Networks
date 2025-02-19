@@ -1,6 +1,4 @@
-# Information Diffusion Models in MATLAB
-
-This repository contains three different **information diffusion models** implemented in MATLAB:
+This repository contains three different information diffusion models implemented in MATLAB:
 
 1. Linear Threshold Model (LTM) - `LTM.m`
 2. Hegselmann-Krause Opinion Dynamics (HK) - `HK.m`
