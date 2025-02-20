@@ -17,7 +17,6 @@ function [A,AA,c,homeless,L,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min)
 A = zeros(n);
 % Generazione dei gradi dei nodi in base a una power law distribution
 [dd, d_max] = powerLaw_degree(n,gamma,d_min,d);
-d_max
 
 % Generazione delle dimensioni delle comunità
 [S,N] = powerLaw_communities(n,d_min,d_max,gamma_c);
@@ -83,22 +82,31 @@ for i = 1:N
             k = k + 1;
         end
         L(k) = L(k)-1;
-        second_pick = randi([1, sum(L)]);
+  
         % trovo il nodo a cui corrisponde la seconda scelta
         h = 0;
+
+        second_pick = randi([1, sum(L)]);
         while sum(L(1:h)) < second_pick
             h = h + 1;
         end
+
+        % while h ~=0 || h~=k
+        %     second_pick = randi([1, sum(L)]);
+        %     while sum(L(1:h)) < second_pick
+        %         h = h + 1;
+        %     end
+        % end
         L(h) = L(h) - 1;
         % creo il collegmento tra i due nodi
         A(k,h) = A(k,h) + 1;
         % rimuovo i collegamenti effettuati dalla lista
     end
 end
-AA = A+A';
+AA = A;
 %% creazione dei collegamenti fra le comunità
 L = round((1-mu)*dd);
-    
+
 while sum(L) > 1
 
     first_pick = randi([1, sum(L)]);
@@ -108,15 +116,17 @@ while sum(L) > 1
         k = k + 1;
     end
     L(k) = L(k)-1;
-    second_pick = randi([1, sum(L)]);
+    % scelgo il secondo elemento in modo che non faccia parte della stessa
+    % comunità del primo
+    L_out = L.*( 1-( c==c(k)));
+    second_pick = randi([1, sum( L_out) ]);
     % trovo il nodo a cui corrisponde la seconda scelta
     h = 0;
-    while sum(L(1:h)) < second_pick
+    while sum(L_out(1:h)) < second_pick
         h = h + 1;
     end
     L(h) = L(h) - 1;
     % creo il collegmento tra i due nodi
     A(k,h) = A(k,h) + 1;
 end
-A = A + A';
 end
