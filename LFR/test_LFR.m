@@ -48,7 +48,7 @@ ylabel('Densità di probabilità stimata');
 
 %% 
 clc, clear, close all
-n = 500;
+n = 1000;
 gamma = 3;
 gamma_c = 3;
 d = 12;
@@ -57,6 +57,7 @@ mu = 0.8;
 tic
 [A,AA,c,h,L,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min);
 toc
+%%
 color = [0.00, 0.45, 0.70;  0.85, 0.33, 0.10;  0.93, 0.69, 0.13;  0.49, 0.18, 0.56;
     0.47, 0.67, 0.19;  0.30, 0.75, 0.93;  0.64, 0.08, 0.18;  0.30, 0.30, 0.30;
     0.60, 0.60, 0.60;  1.00, 0.00, 0.00;  1.00, 0.50, 0.00;  0.75, 0.75, 0.00;
@@ -83,12 +84,12 @@ color = [0.00, 0.45, 0.70;  0.85, 0.33, 0.10;  0.93, 0.69, 0.13;  0.49, 0.18, 0.
     0.20, 0.60, 0.40;  0.40, 0.20, 0.60;  0.30, 0.90, 0.90;  0.90, 0.30, 0.90;
     0.90, 0.90, 0.30;  0.80, 0.80, 0.80;  0.20, 0.20, 0.20;  0.50, 0.50, 0.50;
 ];
-% figure(1)
-% p = plot(digraph(AA));
-% for i = 1:n
-%     highlight(p,i,'MarkerSize',log(c(i)+1),'NodeColor',color(c(i),:))
-%     p.NodeLabel = [];
-% end
+figure(1)
+p = plot(digraph(AA));
+for i = 1:n
+    highlight(p,i,'MarkerSize',log(c(i)+1),'NodeColor',color(c(i),:))
+    p.NodeLabel = [];
+end
 figure(2)
 p1 = plot(digraph(A));
 for i = 1:n
