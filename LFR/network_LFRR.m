@@ -24,7 +24,7 @@ fprintf('d_max = %3d',d_max)
 fprintf('Numero di comunità generate: %d\n', N)
 
 %% Creazione dei collegamenti tra i nodi
-L = dd;
+L = dd1;
 
 while sum(L) > 1
 
