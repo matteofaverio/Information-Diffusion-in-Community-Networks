@@ -48,15 +48,34 @@ ylabel('Densità di probabilità stimata');
 
 %% 
 clc, clear, close all
-n = 1000;
+addpath(genpath('C:\Users\giogu\OneDrive - Politecnico di Milano\Desktop\Poli\Terzo anno\Tesi\Information-Diffusion-in-Community-Networks'));
+n = 100;
 gamma = 3;
 gamma_c = 3;
 d = 12;
 d_min = 7;
-mu = 0.8;
+mu = 0.9;
 tic
 [A,AA,c,h,L,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min);
 toc
+Q = community_louvain(A);
+fprintf('Numero di comunità rilevate: %d\n', max(Q))
+
+%% Stimare il parametro mu
+c_mu = zeros(1,max(c));
+nn = 1:n;
+
+for i = 1:max(c)
+    nodes = nn(c == i);
+    mu_ext = 0*nodes;
+    for j = nodes
+        total = sum(A(j,:));
+        internal = sum(A(j,nodes));
+        mu_ext(j) = internal/total;
+    end
+    c_mu(i) = mean(mu_ext);
+end
+
 %%
 color = [0.00, 0.45, 0.70;  0.85, 0.33, 0.10;  0.93, 0.69, 0.13;  0.49, 0.18, 0.56;
     0.47, 0.67, 0.19;  0.30, 0.75, 0.93;  0.64, 0.08, 0.18;  0.30, 0.30, 0.30;
@@ -85,17 +104,17 @@ color = [0.00, 0.45, 0.70;  0.85, 0.33, 0.10;  0.93, 0.69, 0.13;  0.49, 0.18, 0.
     0.90, 0.90, 0.30;  0.80, 0.80, 0.80;  0.20, 0.20, 0.20;  0.50, 0.50, 0.50;
 ];
 figure(1)
-p = plot(digraph(AA));
+p = plot(digraph(A));
 for i = 1:n
-    highlight(p,i,'MarkerSize',log(c(i)+1),'NodeColor',color(c(i),:))
+    highlight(p,i,'MarkerSize',log(Q(i)+1),'NodeColor',color(Q(i),:))
     p.NodeLabel = [];
 end
-figure(2)
-p1 = plot(digraph(A));
-for i = 1:n
-    highlight(p1,i,'MarkerSize',log(c(i)+1),'NodeColor',color(c(i),:))
-    p1.NodeLabel = [];
-end
+% figure(2)
+% p1 = plot(digraph(A));
+% for i = 1:n
+%     highlight(p1,i,'MarkerSize',log(c(i)+1),'NodeColor',color(c(i),:))
+%     p1.NodeLabel = [];
+% end
 
 %%
 clc, clear, close all
@@ -105,7 +124,8 @@ gamma_c = 3;
 d = 7;
 d_min = 4;
 mu = 0.8;
-[A,c,L,dd] = network_LFRR(n,d,mu,gamma, gamma_c, d_min);
+[A,AA,c,h,L,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min);
+Q = community_louvain(A);
 color = [0.00, 0.45, 0.70;  0.85, 0.33, 0.10;  0.93, 0.69, 0.13;  0.49, 0.18, 0.56;
     0.47, 0.67, 0.19;  0.30, 0.75, 0.93;  0.64, 0.08, 0.18;  0.30, 0.30, 0.30;
     0.60, 0.60, 0.60;  1.00, 0.00, 0.00;  1.00, 0.50, 0.00;  0.75, 0.75, 0.00;
@@ -134,6 +154,6 @@ color = [0.00, 0.45, 0.70;  0.85, 0.33, 0.10;  0.93, 0.69, 0.13;  0.49, 0.18, 0.
 ];
 p = plot(digraph(A));
 for i = 1:n
-    highlight(p,i,'MarkerSize',(c(i)+1),'NodeColor',color(c(i),:))
+    highlight(p,i,'MarkerSize',(c(i)+1),'NodeColor',color(Q(i),:))
     p.NodeLabel = [];
 end

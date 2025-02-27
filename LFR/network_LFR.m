@@ -34,6 +34,7 @@ inhabits = zeros(N,1);
 
 % assegno ogni nodo a una comunità che può contenerlo
 % ripeto finchè a tutti i nodi non è stata assegnata una comunità:
+
 while sum(homeless) > 0
     % scelgo un nodo a caso senza una comunità
     to_pick = randi([1, sum(homeless)]);
@@ -42,14 +43,14 @@ while sum(homeless) > 0
 
     % scelgo a random una comunità a cui associare il mio nodo
     comm = randi([1,N]);
+    fprintf('Nodo: %d, Grado: %d, Dimensione: %d\n',i, ceil(dd(to_pick)),S(comm))
     % assegno il mio nodo alla comunità solo se il numero di elementi di
     % questa supera il grado interno del nodo, ossia il numero di
     % collegamenti che esso stringe internamente alla comunità
-    if S(comm) > mu*dd(i)
-        c(i) = comm;
+    if S(comm) >= ceil(mu*dd(i))
         homeless(i) = 0;
-        % se la comunità è già sostisco un elemento a caso con il nodo
-        % estratto
+        % se la comunità è già piena sostuisco un elemento a caso con il 
+        % nodo estratto
         if inhabits(comm) == S(comm)
             % scelgo elemento da cacciare a caso
             to_kick = randi([1, S(comm)]);
@@ -59,9 +60,9 @@ while sum(homeless) > 0
         else
             inhabits(comm) = inhabits(comm)+1;
         end
+        c(i) = comm;
     end
     % fprintf('nodo %d assegnato alla comunità %d\n', i,comm)
-    %f = f+1
 end
 
 %% Creazione dei collegamenti tra i nodi all'interno delle comunità
@@ -104,6 +105,7 @@ for i = 1:N
     end
 end
 AA = A;
+disp('Comunità create')
 %% creazione dei collegamenti fra le comunità
 L = round((1-mu)*dd);
 
@@ -119,14 +121,19 @@ while sum(L) > 1
     % scelgo il secondo elemento in modo che non faccia parte della stessa
     % comunità del primo
     L_out = L.*( 1-( c==c(k)));
-    second_pick = randi([1, sum( L_out) ]);
-    % trovo il nodo a cui corrisponde la seconda scelta
-    h = 0;
-    while sum(L_out(1:h)) < second_pick
-        h = h + 1;
+    if sum(L_out) > 0
+        second_pick = randi([1, sum( L_out) ]);
+    
+        % trovo il nodo a cui corrisponde la seconda scelta
+        h = 0;
+        while sum(L_out(1:h)) < second_pick
+            h = h + 1;
+        end
+        L(h) = L(h) - 1;
+        % creo il collegmento tra i due nodi
+        A(k,h) = A(k,h) + 1;
+    else
+        L(k) = L(k) + 1;
     end
-    L(h) = L(h) - 1;
-    % creo il collegmento tra i due nodi
-    A(k,h) = A(k,h) + 1;
 end
 end
