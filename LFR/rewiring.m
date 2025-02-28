@@ -49,7 +49,9 @@ for i = 1:num_comm
 end
 
 %%
-while( norm(err)>toll || it<maxit )
+it = 0;
+
+while( norm(errors)>toll || it<maxit )
     
     % Scegli le due coppie ottimali per errori positivi
     [~, idx] = maxk(ERR(1, :), 2);
@@ -58,13 +60,15 @@ while( norm(err)>toll || it<maxit )
     a = ERR(2,idx(1)); b = ERR(3,idx(1)); c = ERR(5,idx(2)); d = ERR(6,idx(2));
     % Stacca a-b, stacca c-d, collega a-c, collega b-d per la matrice A e
     % per le matrici A_comm coinvolte
-    A(a,b) = 0; A(c,d) = 0;
+    A(a,b) = 0; A(c,d) = 0; ...
     % Togliere 1 a current_int per a,b,c,d
-
+    ...
     % Ricalcolo errore per a,b,c,d
+    ...
+
 
     % Stesso processo per le due coppie ottimali per errori negativi
-
+    ...
    
     
 
@@ -72,7 +76,7 @@ while( norm(err)>toll || it<maxit )
     
     
 
-    
-    
+    errors = desired_int - current_int;
+    it = it + 1;
     
 end
