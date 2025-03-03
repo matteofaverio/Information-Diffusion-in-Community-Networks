@@ -43,7 +43,7 @@ while sum(homeless) > 0
 
     % scelgo a random una comunità a cui associare il mio nodo
     comm = randi([1,N]);
-    fprintf('Nodo: %d, Grado: %d, Dimensione: %d\n',i, ceil(dd(to_pick)),S(comm))
+    % fprintf('Nodo: %d, Grado: %d, Dimensione: %d\n',i, ceil(dd(to_pick)),S(comm))
     % assegno il mio nodo alla comunità solo se il numero di elementi di
     % questa supera il grado interno del nodo, ossia il numero di
     % collegamenti che esso stringe internamente alla comunità

@@ -1,8 +1,8 @@
 clc,clear,close all
-gamma = 2+1e-12;
-d_min = 2;
+gamma = 3;
+d_min = 10;
 n = 10000;
-d = 10;
+d = 19;
 A = zeros(n);
 
 %  generazione casuale dei gradi dei singoli nodi in modo che seguano una
@@ -49,32 +49,38 @@ ylabel('Densità di probabilità stimata');
 %% 
 clc, clear, close all
 addpath(genpath('C:\Users\giogu\OneDrive - Politecnico di Milano\Desktop\Poli\Terzo anno\Tesi\Information-Diffusion-in-Community-Networks'));
-n = 100;
+n = 1000;
 gamma = 3;
-gamma_c = 3;
-d = 12;
+gamma_c = 2;
+d = 10;
 d_min = 7;
-mu = 0.9;
+mu = 0.6;
+
 tic
 [A,AA,c,h,L,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min);
 toc
 Q = community_louvain(A);
+NMI = nmi(c,Q);
 fprintf('Numero di comunità rilevate: %d\n', max(Q))
+fprintf('Normalized Mutual Information: %4f\n',NMI)
+
+
 
 %% Stimare il parametro mu
-c_mu = zeros(1,max(c));
-nn = 1:n;
 
-for i = 1:max(c)
-    nodes = nn(c == i);
-    mu_ext = 0*nodes;
-    for j = nodes
-        total = sum(A(j,:));
-        internal = sum(A(j,nodes));
-        mu_ext(j) = internal/total;
-    end
-    c_mu(i) = mean(mu_ext);
-end
+% maschera booleana, M(i,j) == 1 se i e j fanno parte della stessa comunità
+M = (c == c');
+% applico la maschera ad A e sommo sulle righe: trovo i collegamenti
+% interni di ogni nodo
+sameCommCounts = sum(A .* M, 2);
+% trovo i collegamenti totali dei nodi 
+degrees = sum(A, 2);
+fractions = sameCommCounts ./ degrees;
+% tolgo i nan
+fractions(degrees == 0) = 0;
+avgFraction = mean(fractions);
+histogram(fractions,50)
+
 
 %%
 color = [0.00, 0.45, 0.70;  0.85, 0.33, 0.10;  0.93, 0.69, 0.13;  0.49, 0.18, 0.56;
@@ -104,7 +110,7 @@ color = [0.00, 0.45, 0.70;  0.85, 0.33, 0.10;  0.93, 0.69, 0.13;  0.49, 0.18, 0.
     0.90, 0.90, 0.30;  0.80, 0.80, 0.80;  0.20, 0.20, 0.20;  0.50, 0.50, 0.50;
 ];
 figure(1)
-p = plot(digraph(A));
+p = plot(digraph(AA));
 for i = 1:n
     highlight(p,i,'MarkerSize',log(Q(i)+1),'NodeColor',color(Q(i),:))
     p.NodeLabel = [];
