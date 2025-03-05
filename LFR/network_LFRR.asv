@@ -100,6 +100,6 @@ A = A | A';
 % l'obiettivo è ottenere la giusta proporzione fra collegamenti con
 % l'esterno e con l'interno della comunità per ogni nodo
 
-A = rewiring_new(A,c,mu,10000,1e-1);
+%A = rewiring_LFR(A,c,mu,100,1e-1);
 
 end

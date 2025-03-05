@@ -1,47 +1,78 @@
-clc
-clear all
-close all
+clc; clear; close all;
 
-c = [1,3,4,2,2,3,1,4,3,5,5,2,1,1,2,4,3];
-err = c.^2;
+% --- PARAMETRI DEL NETWORK ---
+n = 5000;      
+gamma = 3;
+gamma_c = 3;
+d = 12;
+d_min = 7;
+mu = 0.9;
 
-comm_index = unique(c);
-num_comm = length(comm_index);
-comm = cell(1,num_comm);
+% --- GENERAZIONE DEL NETWORK ---
+tic
+[A, c, L, dd] = network_LFRR(n, d, mu, gamma, gamma_c, d_min);
+toc
+% --- INDIVIDUAZIONE DELLE COMUNITÀ ---(
+Q = community_louvain(A);
+num_communities = max(Q);
+fprintf('Numero di comunità rilevate: %d\n', num_communities)
 
-for i = 1:length(c)
-    comm{c(i)} = [comm{c(i)};i,err(i)]
+%%
+
+tic
+[AA,err_agg] = rewiring_new(A,c,mu,20000,0.01);
+toc
+
+Q1 = community_louvain(AA);
+num_communities1 = max(Q1);
+fprintf('Numero di comunità rilevate: %d\n', num_communities1);
+%%
+tic
+[AAA,err_agg] = rewiring_new(AA,c,mu,20000,0.01);
+toc
+
+Q2 = community_louvain(AAA);
+num_communities2 = max(Q2);
+fprintf('Numero di comunità rilevate: %d\n', num_communities2);
+
+%%
+M = (c == c');
+
+sameCommCounts1 = sum(A .* M, 2);
+degrees1 = sum(A, 2);
+fractions1 = sameCommCounts1 ./ degrees1;
+fractions1(degrees1 == 0) = 0;
+avgFraction1 = mean(fractions1);
+subplot(2,1,1);
+histogram(fractions1,40,"BinLimits",[0 1]);
+
+sameCommCounts = sum(AA .* M, 2);
+degrees = sum(AA, 2);
+fractions = sameCommCounts ./ degrees;
+fractions(degrees == 0) = 0;
+avgFraction = mean(fractions);
+subplot(2,1,2);
+histogram(fractions,40,"BinLimits",[0 1]);
+
+
+
+%%
+
+subplot(2,1,1)
+histogram(sum(A,2),'BinLimits',[0,50])
+subplot(2,1,2)
+histogram(sum(AA,2),'BinLimits',[0,50])
+
+%%
+
+it = size(err_agg,2);
+for i = 1:it
+    errors(i) = mean(err_agg(:,i));
 end
 
-%%
-clc
-clear all
-close all
-
-% Genera una matrice casuale 2×n come esempio
-n = 10; % Numero di colonne
-A = randi(100, 2, n); % Matrice 2×n con valori casuali tra 1 e 100
-
-% Trova gli indici dei due valori massimi nella prima riga
-[~, idx_max] = maxk(A(1, :), 2);
-
-% Trova gli indici dei due valori minimi nella seconda riga
-[~, idx_min] = mink(A(2, :), 2);
-
-% Visualizza i risultati
-disp('Matrice A:');
-disp(A);
-disp('Indici dei due valori massimi nella riga 1:');
-disp(idx_max);
-disp('Indici dei due valori minimi nella riga 2:');
-disp(idx_min);
+plot(errors);
+grid on;
 
 %%
-clc
-clear all
-close all
-A = [0 1 1 1; 0 0 1 0 ; 0 0 0 1 ; 0 0 0 0]
-err_x = [4 5 2 8];
-err = [5:8;err_x]'
 
-[val,a,b] = find_couple(err,A,2)
+randi
