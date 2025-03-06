@@ -17,7 +17,7 @@ function [A,c,L,dd] = network_LFRR(n,d,mu,gamma, gamma_c, d_min)
 A = zeros(n);
 % Generazione dei gradi dei nodi in base a una power law distribution
 [dd, d_max] = powerLaw_degree(n,gamma,d_min,d);
-fprintf('d_max = %3d',d_max)
+fprintf('d_max = %3d\n',d_max)
 
 % Generazione delle dimensioni delle comunità
 [S,N] = powerLaw_communities(n,d_min,d_max,gamma_c);
@@ -51,6 +51,7 @@ while sum(L) > 1
     % creo il collegmento tra i due nodi
     A(k,h) = 1;
 end
+fprintf('Nodi collegati')
 
 %% Assegnazione di ogni nodo a una comunità
 
@@ -92,14 +93,13 @@ while sum(homeless) > 0
     end
 end
 
+
 A = A | A';
-
-
 
 %% Reshuffle dei collegamenti 
 % l'obiettivo è ottenere la giusta proporzione fra collegamenti con
 % l'esterno e con l'interno della comunità per ogni nodo
 
-%A = rewiring_LFR(A,c,mu,100,1e-1);
+%A = rewiring_new(A,c,mu,10000,1e-1);
 
 end

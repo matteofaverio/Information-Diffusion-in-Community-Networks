@@ -17,6 +17,7 @@ function [A,AA,c,homeless,L,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min)
 A = zeros(n);
 % Generazione dei gradi dei nodi in base a una power law distribution
 [dd, d_max] = powerLaw_degree(n,gamma,d_min,d);
+fprintf('d_max = %3d\n',d_max)
 
 % Generazione delle dimensioni delle comunità
 [S,N] = powerLaw_communities(n,d_min,d_max,gamma_c);
@@ -64,6 +65,7 @@ while sum(homeless) > 0
     end
     % fprintf('nodo %d assegnato alla comunità %d\n', i,comm)
 end
+fprintf('Nodi assegnati alle comunità\n');
 
 %% Creazione dei collegamenti tra i nodi all'interno delle comunità
 
@@ -105,7 +107,7 @@ for i = 1:N
     end
 end
 AA = A;
-disp('Comunità create')
+fprintf('Comunità create\n')
 %% creazione dei collegamenti fra le comunità
 L = round((1-mu)*dd);
 
@@ -136,4 +138,6 @@ while sum(L) > 1
         L(k) = L(k) + 1;
     end
 end
+fprintf('Comunità collegate\n')
+
 end
