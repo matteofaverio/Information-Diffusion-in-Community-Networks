@@ -8,7 +8,8 @@ a = 0;
 N = size(A, 1);           
 d = sum(A, 2);            
 
-k_in_desired = mu * d;
+k_in_desired = round(mu * d);
+
 k_in_current = zeros(N, 1);
 for i = 1:N
     neighbors = find(A(i, :));
@@ -17,7 +18,8 @@ end
 
 err = (k_in_desired - k_in_current);
 err_agg = mean(err);
-var_agg = (sum((err-mean(err)).^2))./N;
+mu_vec = mu*ones(N,1);
+var_agg = (sum((err-mu_vec).^2))./N;
 
 % lista degli archi esterni
 [I, J] = find(triu(A));
@@ -93,6 +95,7 @@ while iter < max_iter && improved && err_agg(end)>0
             k = external_edges(idx2,2);
             tried = tried + 1;
     
+            % controllo
             if (i==h || j==k || i==k || j == h) 
                 to_check(idx2) = 0;
             elseif A(i,h) || A(j,k) || A(i,k) || A(j,h)
@@ -100,15 +103,19 @@ while iter < max_iter && improved && err_agg(end)>0
             elseif length(unique([comm(i),comm(j),comm(h),comm(k)]))==4
                 to_check(idx2) = 0;
             else
+                % calcolo l'effetto del caso1
                 cc1 = [ (comm(i) == comm(h)) ; (comm(j) == comm(k)) ];
                 d1 = k_in_current([i,j,h,k]) + [cc1;cc1];
                 e1 = k_in_desired([i,j,h,k]) - d1;
                 e_1 = sum(e1);
+                % calcolo l'effetto del caso2
                 cc2 = [ (comm(i) == comm(k)) ; (comm(j) == comm(h)) ];
                 d2 = k_in_current([i,j,k,h]) + [cc2;cc2];
                 e2 = k_in_desired([i,j,k,h]) - d2;
                 e_2 = sum(e2);
+                % cerco il caso con l'effetto massimo (errore minimo)
                 [e_fin,idx] = min([e_1,e_2]);
+                % se l'errore è ancora positivo, found = true
                 if e_fin > 0
                     found1 = true;
                 else 
@@ -245,8 +252,8 @@ while iter < max_iter && improved && err_agg(end)>0
         
     end
 
+    var = (sum((err-mu_vec).^2))./N;
     err_agg = [err_agg , mean(err)];
-    var = (sum((err-err_agg(end)).^2))./N;
     var_agg = [var_agg , var];
     
     improved = improved1 || improved2;  
@@ -257,8 +264,9 @@ end
 
 A_rewired = A;
 
-fprintf('[ iter          | %d \n  shuffle err>0 | %d \n  shuffle err<0 | %d \n  err           | %d ]\n', ...
-    iter, count1, count2, mean(err));
+fprintf('[ iter | scambi per err>0 | count2 ]\n');
+fprintf('[ %d | %d | %d ]',iter,count1,count2);
+
 
 end
 

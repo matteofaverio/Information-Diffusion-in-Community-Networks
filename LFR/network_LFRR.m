@@ -103,7 +103,7 @@ fprintf('Nodi assegnati alle comunità\n')
 % l'obiettivo è ottenere la giusta proporzione fra collegamenti con
 % l'esterno e con l'interno della comunità per ogni nodo
 
-A = rewiring(A,c,mu,10*n);
+%A = rewiring(A,c,mu,5*n);
 
 end
 
