@@ -47,6 +47,7 @@ while f(lower) * f(upper) > 0
 end
 % uso il metodo di bisezione per trovare d_max;
 d_max = fzero(f,[lower, upper]);
+d_max = round(d_max);
 
 % Generazione dei gradi dei singoli nodi
 u = rand(n,1);

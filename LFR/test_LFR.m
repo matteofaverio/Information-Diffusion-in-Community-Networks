@@ -52,8 +52,8 @@ addpath(genpath('C:\Users\giogu\OneDrive - Politecnico di Milano\Desktop\Poli\Te
 n = 1000;
 gamma = 3;
 gamma_c = 2;
-d = 22;
-d_min = 15;
+d = 15;
+d_min = 9;
 mu = 0.8;
 
 tic
@@ -115,9 +115,9 @@ color = [0.00, 0.45, 0.70;  0.85, 0.33, 0.10;  0.93, 0.69, 0.13;  0.49, 0.18, 0.
     0.90, 0.90, 0.30;  0.80, 0.80, 0.80;  0.20, 0.20, 0.20;  0.50, 0.50, 0.50;
 ];
 figure(1)
-p = plot(digraph(AA));
+p = plot(digraph(A));
 for i = 1:n
-    highlight(p,i,'MarkerSize',log(Q(i)+1),'NodeColor',color(Q(i),:))
+    highlight(p,i,'MarkerSize',log(Q(i)+1),'NodeColor',color(Q(i),:),'EdgeColor','k','LineWidth',0.1)
     p.NodeLabel = [];
 end
 % figure(2)
