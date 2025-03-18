@@ -7,6 +7,10 @@ n = size(A,1);           % Numero di righe (e colonne) di A
 W = zeros(n);            % Inizializza la matrice W a zeri
 deg = sum(A, 2);         % Calcola il vettore dei gradi: somma degli elementi per ogni riga
 
+if A~= A'
+    A = A+A'*1/2;
+end
+
 % Ottieni gli indici (i,j) per le coppie dove i > j (parte triangolare inferiore)
 [I, J] = find(tril(ones(n), -1));
 

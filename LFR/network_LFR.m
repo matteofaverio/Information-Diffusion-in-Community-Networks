@@ -1,4 +1,4 @@
-function [A,AA,c,homeless,L,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min)
+function [A,AA,c,dd,s] = network_LFR(n,d,mu,gamma, gamma_c, d_min)
 %network_LFR creates a Lancichinetti-Fortunato-Radicchi network with n
 %nodes,average connectivity d,and mixing parameter mu. The nodes
 %distribution follows a power law with exponent gamma and the community
@@ -69,69 +69,135 @@ end
 
 %% Creazione dei collegamenti tra i nodi all'interno delle comunità
 
-A = zeros(n);
-
+% A = zeros(n);
+% 
+% for i = 1:N
+%     % la lista L contiene il numero di collegamenti che devono ancora essere
+%     % formati dal nodo all'interno della sua comunità
+%     L = round(mu*dd.*(c == i));
+% 
+%     while sum(L) > 1
+% 
+%         first_pick = randi([1, sum(L)]);
+%         % trovo il nodo a cui corrisponde la prima scelta
+%         k = 0;
+%         while sum(L(1:k)) < first_pick
+%             k = k + 1;
+%         end
+%         L(k) = L(k)-1;
+% 
+%         % trovo il nodo a cui corrisponde la seconda scelta
+%         h = 0;
+% 
+%         second_pick = randi([1, sum(L)]);
+%         while sum(L(1:h)) < second_pick
+%             h = h + 1;
+%         end
+% 
+%         % while h ~=0 || h~=k
+%         %     second_pick = randi([1, sum(L)]);
+%         %     while sum(L(1:h)) < second_pick
+%         %         h = h + 1;
+%         %     end
+%         % end
+%         L(h) = L(h) - 1;
+%         % creo il collegmento tra i due nodi
+%         A(k,h) = A(k,h) + 1;
+%         % rimuovo i collegamenti effettuati dalla lista
+%     end
+%     disp(sum(L))
+% end
+%%
+residual_links = zeros(n,1);
+s = 0;
+L1 = dd;
 for i = 1:N
-    % la lista L contiene il numero di collegamenti che devono ancora essere
-    % formati dal nodo all'interno della sua comunità
-    L = round(mu*dd.*(c == i));
-    
-    while sum(L) > 1
-    
-        first_pick = randi([1, sum(L)]);
-        % trovo il nodo a cui corrisponde la prima scelta
-        k = 0;
-        while sum(L(1:k)) < first_pick
-            k = k + 1;
-        end
-        L(k) = L(k)-1;
-  
-        % trovo il nodo a cui corrisponde la seconda scelta
-        h = 0;
 
-        second_pick = randi([1, sum(L)]);
-        while sum(L(1:h)) < second_pick
-            h = h + 1;
+    deg = round( (mu)*dd.*(c == i));
+    L1 = L1-deg;
+    s = s + sum(deg);
+    degrees = unique(sort(deg,'descend'));
+
+    L = zeros(n,1); 
+
+    for j =  1:( length(degrees)-1 )
+        d = degrees(j);
+        L = L + deg.*(deg == d);
+
+        if sum(L > 0) < 2
+            continue;
         end
 
-        % while h ~=0 || h~=k
-        %     second_pick = randi([1, sum(L)]);
-        %     while sum(L(1:h)) < second_pick
-        %         h = h + 1;
-        %     end
-        % end
-        L(h) = L(h) - 1;
-        % creo il collegmento tra i due nodi
-        A(k,h) = A(k,h) + 1;
-        % rimuovo i collegamenti effettuati dalla lista
+        while min(L(L>0)) > degrees(j+1)
+
+                first_pick = randi([1, sum(L)]);
+                % trovo il nodo a cui corrisponde la prima scelta
+                k = find(cumsum(L) >= first_pick, 1);
+                L(k) = L(k)-1;
+
+                % faccio in modo di scegliere un nodo diverso da quello
+                % precedente
+                L_mod = L;
+                L_mod(k) = 0; 
+
+                second_pick = randi([1, sum(L_mod)]);
+                % trovo il nodo a cui corrisponde la seconda scelta
+                h = find(cumsum(L_mod) >= second_pick, 1);
+
+                % rimuovo i collegamenti effettuati dalla lista
+                L(h) = L(h) - 1;
+
+                % creo il collegmento tra i due nodi
+                A(k,h) = A(k,h) + 1;
+        end
     end
+        L = L + deg.*(deg == degrees(end));
+    while sum(L) > 1
+            first_pick = randi([1, sum(L)]);
+            % trovo il nodo a cui corrisponde la prima scelta
+            k = find(cumsum(L) >= first_pick, 1);
+            L(k) = L(k)-1;
+
+            % faccio in modo di scegliere un nodo diverso da quello
+            % precedente
+            L_mod = L;
+            L_mod(k) = 0; 
+
+            second_pick = randi([1, sum(L_mod)]);
+            % trovo il nodo a cui corrisponde la seconda scelta
+            h = find(cumsum(L_mod) >= second_pick, 1);
+
+            % rimuovo i collegamenti effettuati dalla lista
+            L(h) = L(h) - 1;
+
+            % creo il collegmento tra i due nodi
+            A(k,h) = A(k,h) + 1;
+    end
+            residual_links = residual_links + L;
 end
 AA = A;
 fprintf('Comunità create\n')
 %% creazione dei collegamenti fra le comunità
-L = round((1-mu)*dd);
+% L = round((1-mu)*dd) + residual_links;
+L1 = L1 + residual_links;
+s = s+sum(L1);
 
 while sum(L) > 1
 
     first_pick = randi([1, sum(L)]);
     % trovo il nodo a cui corrisponde la prima scelta
-    k = 0;
-    while sum(L(1:k)) < first_pick
-        k = k + 1;
-    end
-    L(k) = L(k)-1;
+    k = find(cumsum(L) >= first_pick, 1);
     % scelgo il secondo elemento in modo che non faccia parte della stessa
     % comunità del primo
-    L_out = L.*( 1-( c==c(k)));
+    L_out = L;
+    L_out(c == c(k)) = 0;
     if sum(L_out) > 0
         second_pick = randi([1, sum( L_out) ]);
     
         % trovo il nodo a cui corrisponde la seconda scelta
-        h = 0;
-        while sum(L_out(1:h)) < second_pick
-            h = h + 1;
-        end
+        h = find(cumsum(L_out) >= second_pick);
         L(h) = L(h) - 1;
+        L(k) = L(k) - 1;
         % creo il collegmento tra i due nodi
         A(k,h) = A(k,h) + 1;
     else
