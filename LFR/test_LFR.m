@@ -1,56 +1,34 @@
-
-%% 
 clc, clear, close all
 addpath(genpath('C:\Users\giogu\OneDrive - Politecnico di Milano\Desktop\Poli\Terzo anno\Tesi\Information-Diffusion-in-Community-Networks'));
 n = 1000;
 gamma = 3;
-gamma_c = 2;
-d = 12;
-d_min = 7;
-mu = 0.9;
+gamma_c = 1;
+d = 25;
+d_min = 15;
+mu = 0.5;
 
 tic
-[A,AA,c,dd,s] = network_LFR(n,d,mu,gamma, gamma_c, d_min);
+[A,AA,c,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min);
 toc
-%%
+
+%% COMMUNITY DETECTION
 Q = community_louvain(A);
 NMI = nmi(c,Q);
 fprintf('Numero di comunità rilevate: %d\n', max(Q))
 fprintf('Normalized Mutual Information: %4f\n',NMI)
-tic
 W = trustiness(A);
-toc
 
-%% Distribuzione dei nodi
-d_real = sum(A,2);
-d_simm = sum((A+A'),2);
+% Distribuzione dei gradi
+d_simm = sum(A,2);
+
 figure(1)
-
 subplot(2,1,1)
 histogram(d_simm,'BinLimits',[0 50])
 subplot(2,1,2)
 histogram(dd,'BinLimits',[0 50])
 
 
-
-
-%%
-gamma = [3,2];
-beta = [1,2];
-d_mean = [15 20 25];
-mu = 0.4:0.05:0.9;
-n = 1000;
-
-for g = gamma
-    for b = beta
-        for d = d_mean
-            for m = mu
-            end
-        end
-    end
-end
-
-%% Stimare il parametro mu
+% Stimare il parametro mu
 
 % maschera booleana, M(i,j) == 1 se i e j fanno parte della stessa comunità
 M = (c == c');
@@ -64,10 +42,48 @@ fractions = sameCommCounts ./ degrees;
 fractions(degrees == 0) = 0;
 avgFraction = mean(fractions);
 fprintf('mu medio rilevato: %f\n',avgFraction)
-histogram(fractions,10)
+figure(2)
+histogram(fractions,20,'BinLimits',[0 1])
 
-mu_unitario = find(fractions == 1);
-nodistrani = dd(mu_unitario);
+%%
+clc, clear,close all
+n = 1000;
+mu = 0.4:0.05:0.9;
+mm = length(mu);
+gamma = [2 3];
+gg = length(gamma);
+beta = [1 2];
+bb = length(beta);
+d_mean = [15, 20, 25];
+dd = length(d_mean);
+d_min = [9,11,16];
+
+A = zeros(n,n,mm,gg,bb,dd);
+c = zeros(n,mm,gg,bb,dd);
+
+for m = 1:mm
+    for g = 1:gg
+        for b = 1:bb
+            for d = 1:dd
+                [A(:,:,m,g,b,d),AA,c(:,m,g,b,d),dd] = network_LFR(n,d_mean(d),mu(m),gamma(g), beta(b), d_min(d));
+            end
+        end
+    end
+end
+%%
+nmis = zeros(mm,gg,bb,dd);
+for m = 1:mm
+    for g = 1:gg
+        for b = 1:bb
+            for d = 1:dd
+                Q = community_louvain(A(:,:,m,g,b,d));
+                nmis(m,g,b,d) = nmi(c(:,m,g,b,d),Q);
+            end
+        end
+    end
+end
+
+
 
 %%
 color = [0.00, 0.45, 0.70;  0.85, 0.33, 0.10;  0.93, 0.69, 0.13;  0.49, 0.18, 0.56;
@@ -97,9 +113,9 @@ color = [0.00, 0.45, 0.70;  0.85, 0.33, 0.10;  0.93, 0.69, 0.13;  0.49, 0.18, 0.
     0.90, 0.90, 0.30;  0.80, 0.80, 0.80;  0.20, 0.20, 0.20;  0.50, 0.50, 0.50;
 ];
 figure(1)
-p = plot(digraph(A));
-for i = 1:n
-    highlight(p,i,'MarkerSize',log(Q(i)+1),'NodeColor',color(Q(i),:),'EdgeColor','k','LineWidth',0.1)
+p = plot(graph(AA|AA'),'EdgeAlpha',0.1);
+for d = 1:n
+    highlight(p,d,'MarkerSize',log(Q(d)+1),'NodeColor',color(Q(d),:),'EdgeColor','k','LineWidth',0.1)
     p.NodeLabel = [];
 end
 % figure(2)
@@ -109,68 +125,3 @@ end
 %     p1.NodeLabel = [];
 % end
 
-%%
-for i = 1:N
-
-    deg = round( (mu)*dd(c == i));
-    degrees = sort(deg,'descend');
-    degrees = unique(degrees);
-
-    L = zeros(1,n); 
-
-    for j =  1:( length(degrees)-1 )
-        d = degrees(j);
-        L = L + deg(deg == d);
-
-        if sum(L > 0) < 2
-            continue;
-        end
-
-        while min(L) > degrees(j+1)
-
-                first_pick = randi([1, sum(L)]);
-                % trovo il nodo a cui corrisponde la prima scelta
-                k = find(cumsum(L) >= first_pick, 1);
-                L(k) = L(k)-1;
-                
-                % faccio in modo di scegliere un nodo diverso da quello
-                % precedente
-                L_mod = L;
-                L_mod(k) = 0; 
-
-                second_pick = randi([1, sum(L_mod)]);
-                % trovo il nodo a cui corrisponde la seconda scelta
-                h = find(cumsum(L_mod) >= second_pick, 1);
-
-                % rimuovo i collegamenti effettuati dalla lista
-                L(h) = L(h) - 1;
-
-                % creo il collegmento tra i due nodi
-                A(k,h) = A(k,h) + 1;
-        end
-    end
-        L = L + deg(deg == degrees(end));
-    while sum(L) > 1
-            first_pick = randi([1, sum(L)]);
-            % trovo il nodo a cui corrisponde la prima scelta
-            k = find(cumsum(L) >= first_pick, 1);
-            L(k) = L(k)-1;
-            
-            % faccio in modo di scegliere un nodo diverso da quello
-            % precedente
-            L_mod = L;
-            L_mod(k) = 0; 
-
-            second_pick = randi([1, sum(L_mod)]);
-            % trovo il nodo a cui corrisponde la seconda scelta
-            h = find(cumsum(L_mod) >= second_pick, 1);
-
-            % rimuovo i collegamenti effettuati dalla lista
-            L(h) = L(h) - 1;
-
-            % creo il collegmento tra i due nodi
-            A(k,h) = A(k,h) + 1;
-    end
-
-            disp(sum(L))
-end

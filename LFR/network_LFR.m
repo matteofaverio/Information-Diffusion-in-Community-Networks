@@ -1,9 +1,9 @@
-function [A,AA,c,dd,s] = network_LFR(n,d,mu,gamma, gamma_c, d_min)
+function [A,AA,c,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min)
 %network_LFR creates a Lancichinetti-Fortunato-Radicchi network with n
 %nodes,average connectivity d,and mixing parameter mu. The nodes
 %distribution follows a power law with exponent gamma and the community
 %scale follows a power law with exponent gamma_c
-%   [A] = network_LFR(n,m)
+%   [A,AA,c,dd] = network_LFR(n,m)
 %   Input values:
 %   n: number of desired nodes
 %   gamma:
@@ -27,16 +27,18 @@ fprintf('Numero di comunità generate: %d\n', N)
 
 % vettore contente la comunità a cui ogni nodo è assegnato
 c = zeros(n,1);
+
 % vettore contenente i nodi che devono ancora venire assegnati a una
 % comunità
 homeless = ones(n,1);
+
 % vettore contenente il numero di nodi presenti in ogni comunità
 inhabits = zeros(N,1);
 
 % assegno ogni nodo a una comunità che può contenerlo
 % ripeto finchè a tutti i nodi non è stata assegnata una comunità:
-
 while sum(homeless) > 0
+
     % scelgo un nodo a caso senza una comunità
     to_pick = randi([1, sum(homeless)]);
     still_to_pick = find(homeless==1);
@@ -44,15 +46,17 @@ while sum(homeless) > 0
 
     % scelgo a random una comunità a cui associare il mio nodo
     comm = randi([1,N]);
-    % fprintf('Nodo: %d, Grado: %d, Dimensione: %d\n',i, ceil(dd(to_pick)),S(comm))
+
     % assegno il mio nodo alla comunità solo se il numero di elementi di
     % questa supera il grado interno del nodo, ossia il numero di
     % collegamenti che esso stringe internamente alla comunità
     if S(comm) >= ceil(mu*dd(i))
         homeless(i) = 0;
+
         % se la comunità è già piena sostuisco un elemento a caso con il 
         % nodo estratto
         if inhabits(comm) == S(comm)
+
             % scelgo elemento da cacciare a caso
             to_kick = randi([1, S(comm)]);
             nodes_in_community = find(c == comm);
@@ -69,141 +73,180 @@ end
 
 %% Creazione dei collegamenti tra i nodi all'interno delle comunità
 
-% A = zeros(n);
-% 
-% for i = 1:N
-%     % la lista L contiene il numero di collegamenti che devono ancora essere
-%     % formati dal nodo all'interno della sua comunità
-%     L = round(mu*dd.*(c == i));
-% 
-%     while sum(L) > 1
-% 
-%         first_pick = randi([1, sum(L)]);
-%         % trovo il nodo a cui corrisponde la prima scelta
-%         k = 0;
-%         while sum(L(1:k)) < first_pick
-%             k = k + 1;
-%         end
-%         L(k) = L(k)-1;
-% 
-%         % trovo il nodo a cui corrisponde la seconda scelta
-%         h = 0;
-% 
-%         second_pick = randi([1, sum(L)]);
-%         while sum(L(1:h)) < second_pick
-%             h = h + 1;
-%         end
-% 
-%         % while h ~=0 || h~=k
-%         %     second_pick = randi([1, sum(L)]);
-%         %     while sum(L(1:h)) < second_pick
-%         %         h = h + 1;
-%         %     end
-%         % end
-%         L(h) = L(h) - 1;
-%         % creo il collegmento tra i due nodi
-%         A(k,h) = A(k,h) + 1;
-%         % rimuovo i collegamenti effettuati dalla lista
-%     end
-%     disp(sum(L))
-% end
-%%
-residual_links = zeros(n,1);
-s = 0;
-L1 = dd;
-for i = 1:N
+A = zeros(n);
 
-    deg = round( (mu)*dd.*(c == i));
+% vettore che contiene tutti i collegamenti scartati
+residual_links = zeros(n,1);
+% vesttore contenente il numero di collegamenti intercomunitari
+L1 = dd;
+
+for i = 1:N
+    % vettore contenente i collegamenti intracomunitari di ogni nodo
+    deg = round( mu*dd.*(c == i));
+
+    % rimuovo i collegamenti che verranno effettuati dai collegamenti
+    % intracomunitari
     L1 = L1-deg;
-    s = s + sum(deg);
+
+    % lista ordinata dei numeri di collegamenti fra i nodi della comunità
     degrees = unique(sort(deg,'descend'));
 
+    % lista che conterrà il numero di collegamenti mancanti per ogni nodo
     L = zeros(n,1); 
-
+    
+    % faccio un ciclo sui valori dei gradi interni alla comunità
     for j =  1:( length(degrees)-1 )
         d = degrees(j);
-        L = L + deg.*(deg == d);
 
+        % aggiungo i nodi con il grado corrente alla lista contenente i
+        % collegamenti mancanti
+        L = L + deg.*(deg == d);
+        
+        % se la lista conitene un unico nodo passo al grado successivo
         if sum(L > 0) < 2
             continue;
         end
+        it = 0;     % contatore delle iterazioni
 
-        while min(L(L>0)) > degrees(j+1)
-
+        while min(L(L>0)) > degrees(j+1) && it < 2000
+                % scelgo il primo nodo da collegare
                 first_pick = randi([1, sum(L)]);
+
                 % trovo il nodo a cui corrisponde la prima scelta
                 k = find(cumsum(L) >= first_pick, 1);
-                L(k) = L(k)-1;
 
                 % faccio in modo di scegliere un nodo diverso da quello
                 % precedente
                 L_mod = L;
                 L_mod(k) = 0; 
+                
+                % se non ci sono altri nodi da collegare ripeto la prima
+                % scelta
+                if sum(L_mod) == 0
+                    it = it+1;
+                    continue
+                end
 
                 second_pick = randi([1, sum(L_mod)]);
+
                 % trovo il nodo a cui corrisponde la seconda scelta
                 h = find(cumsum(L_mod) >= second_pick, 1);
+                   
+                % se il collegamento esiste già ripeto il processo
+                if A(k,h) + A(h,k) > 0
+                    it = it+1;
+                    continue
+                end
 
                 % rimuovo i collegamenti effettuati dalla lista
                 L(h) = L(h) - 1;
+                L(k) = L(k) - 1;
 
                 % creo il collegmento tra i due nodi
                 A(k,h) = A(k,h) + 1;
         end
     end
-        L = L + deg.*(deg == degrees(end));
-    while sum(L) > 1
+    if it == 1000
+        fprintf('Comunità non create')
+        A = nan(n);
+        return
+    end
+
+    % ripeto il procedimento per il grado più basso
+    L = L + deg.*(deg == degrees(end));
+    it = 0;
+    while sum(L) > 1 && it < 2000
+
             first_pick = randi([1, sum(L)]);
             % trovo il nodo a cui corrisponde la prima scelta
             k = find(cumsum(L) >= first_pick, 1);
-            L(k) = L(k)-1;
-
-            % faccio in modo di scegliere un nodo diverso da quello
+          
+             % faccio in modo di scegliere un nodo diverso da quello
             % precedente
             L_mod = L;
             L_mod(k) = 0; 
+            
+            % se non ci sono altri nodi da collegare ripeto la prima
+            % scelta
+            if sum(L_mod) == 0
+                it = it+1;
+                continue
+            end
 
             second_pick = randi([1, sum(L_mod)]);
+
             % trovo il nodo a cui corrisponde la seconda scelta
             h = find(cumsum(L_mod) >= second_pick, 1);
+            
+            % se il collegamento esiste già ripeto il processo
+            if A(k,h) + A(h,k) > 0
+                it = it+1;
+                continue
+            end
 
             % rimuovo i collegamenti effettuati dalla lista
             L(h) = L(h) - 1;
+            L(k) = L(k) - 1;
 
             % creo il collegmento tra i due nodi
             A(k,h) = A(k,h) + 1;
     end
-            residual_links = residual_links + L;
+    % resgistro in una lista tutti i collegamenti che non sono stati
+    % effettuati
+    residual_links = residual_links + L;
 end
 AA = A;
-fprintf('Comunità create\n')
+if it == 1000
+    fprintf('Comunità non create')
+    A = nan(n);
+    return
+else
+    fprintf('Comunità create\n')
+end
 %% creazione dei collegamenti fra le comunità
-% L = round((1-mu)*dd) + residual_links;
 L1 = L1 + residual_links;
-s = s+sum(L1);
 
-while sum(L) > 1
+% contatore delle iterazioni
+it = 0;
 
-    first_pick = randi([1, sum(L)]);
+while sum(L1) > 1 && it < 2000
+
+    first_pick = randi([1, sum(L1)]);
+
     % trovo il nodo a cui corrisponde la prima scelta
-    k = find(cumsum(L) >= first_pick, 1);
+    k = find(cumsum(L1) >= first_pick, 1);
+
     % scelgo il secondo elemento in modo che non faccia parte della stessa
     % comunità del primo
-    L_out = L;
+    L_out = L1;
     L_out(c == c(k)) = 0;
-    if sum(L_out) > 0
-        second_pick = randi([1, sum( L_out) ]);
-    
-        % trovo il nodo a cui corrisponde la seconda scelta
-        h = find(cumsum(L_out) >= second_pick);
-        L(h) = L(h) - 1;
-        L(k) = L(k) - 1;
-        % creo il collegmento tra i due nodi
-        A(k,h) = A(k,h) + 1;
-    else
-        L(k) = L(k) + 1;
+
+    if sum(L_out) == 0
+            it = it+1;
+            continue
     end
+    second_pick = randi([1, sum( L_out) ]);
+
+    % trovo il nodo a cui corrisponde la seconda scelta
+    h = find(cumsum(L_out) >= second_pick,1);
+
+    if A(k,h) + A(h,k) > 0
+            it = it+1;
+            continue
+    end
+
+    L1(h) = L1(h) - 1;
+    L1(k) = L1(k) - 1;
+
+    % creo il collegmento tra i due nodi
+    A(k,h) = A(k,h) + 1;
+end
+
+if it == 1000
+    fprintf('Comunità non collegate')
+    A = nan(n);
+    return
 end
 %fprintf('Comunità collegate\n')
-
+A = A+A';
 end
