@@ -1,4 +1,4 @@
-function [A,c,L,dd] = network_LFRR(n,d,mu,gamma, gamma_c, d_min)
+function [A,c,L,dd] = network_LLFR(n,d,mu,gamma, gamma_c, d_min)
 %network_LFR creates a Lancichinetti-Fortunato-Radicchi network with n
 %nodes,average connectivity d,and mixing parameter mu. The nodes
 %distribution follows a power law with exponent gamma and the community
@@ -15,6 +15,7 @@ function [A,c,L,dd] = network_LFRR(n,d,mu,gamma, gamma_c, d_min)
 %   c: vector indicating which community each node belongs to
 
 A = zeros(n);
+
 % Generazione dei gradi dei nodi in base a una power law distribution
 [dd, d_max] = powerLaw_degree(n,gamma,d_min,d);
 fprintf('d_max = %3d\n',d_max)
@@ -50,8 +51,9 @@ while sum(L) > 1
     L(h) = L(h) - 1;
     % creo il collegmento tra i due nodi
     A(k,h) = 1;
+    
 end
-fprintf('Nodi collegati')
+fprintf('Nodi collegati\n')
 
 %% Assegnazione di ogni nodo a una comunità
 
@@ -95,11 +97,4 @@ end
 
 
 A = A | A';
-
-%% Reshuffle dei collegamenti 
-% l'obiettivo è ottenere la giusta proporzione fra collegamenti con
-% l'esterno e con l'interno della comunità per ogni nodo
-
-%A = rewiring_new(A,c,mu,10000,1e-1);
-
-end
+fprintf('Nodi assegnati alle comunità\n')
