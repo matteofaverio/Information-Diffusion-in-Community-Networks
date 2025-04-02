@@ -47,31 +47,51 @@ histogram(fractions,20,'BinLimits',[0 1])
 
 %%
 clc, clear,close all
+addpath(genpath('C:\Users\giogu\OneDrive - Politecnico di Milano\Desktop\Poli\Terzo anno\Tesi\Information-Diffusion-in-Community-Networks'));
+
+
+n_tests = 100;
 n = 1000;
+
 mu = 0.4:0.05:0.9;
 mm = length(mu);
+
 gamma = [2 3];
 gg = length(gamma);
+
 beta = [1 2];
 bb = length(beta);
+
 d_mean = [15, 20, 25];
 dd = length(d_mean);
 d_min = [9,11,16];
 
 A = zeros(n,n,mm,gg,bb,dd);
 c = zeros(n,mm,gg,bb,dd);
+nmis = zeros(n_tests,mm,gg,bb,dd);
 
-for m = 1:mm
-    for g = 1:gg
-        for b = 1:bb
-            for d = 1:dd
-                [A(:,:,m,g,b,d),AA,c(:,m,g,b,d),dd] = network_LFR(n,d_mean(d),mu(m),gamma(g), beta(b), d_min(d));
+for i = 1:n_tests
+    for m = 1:mm
+        for g = 1:gg
+            for b = 1:bb
+                for d = 1:dd
+                    [A(:,:,m,g,b,d),AA,c(:,m,g,b,d),degrees] = network_LFR(n,d_mean(d),mu(m),gamma(g), beta(b), d_min(d));
+                    if sum(sum(isnan(A))) > 0
+                        nmis(i,m,g,b,d) = nan;
+                        continue
+                    end
+                    Q = community_louvain(A(:,:,m,g,b,d));
+                    nmis(i,m,g,b,d) = nmi(c(:,m,g,b,d),Q);
+                end
             end
         end
     end
+    fprintf('iterazione %d\n',i)
 end
+
+save('nmiresults.mat','nmis');
 %%
-nmis = zeros(mm,gg,bb,dd);
+
 for m = 1:mm
     for g = 1:gg
         for b = 1:bb
@@ -125,3 +145,83 @@ end
 %     p1.NodeLabel = [];
 % end
 
+%% 📝 MATLAB Cheat Sheet – Animare un plot
+
+% Questo script mostra diversi metodi per animare grafici in MATLAB.
+% Ogni sezione è indipendente. Puoi eseguire tutto o solo una parte.
+
+%% 1️⃣ Animare un punto su una sinusoide
+
+x = linspace(0, 2*pi, 100);
+y = sin(x);
+
+figure;
+h = plot(x(1), y(1), 'ro', 'MarkerSize', 10); % punto iniziale (rosso)
+xlim([0 2*pi]);
+ylim([-1.2 1.2]);
+
+for k = 2:length(x)
+    set(h, 'XData', x(k), 'YData', y(k)); % aggiorna posizione del punto
+    pause(0.05); % controlla la velocità dell'animazione
+end
+
+%% 2️⃣ Disegnare una curva progressivamente (linea che si estende)
+
+x = linspace(0, 2*pi, 100);
+y = sin(x);
+
+figure;
+h = plot(NaN, NaN, 'b-', 'LineWidth', 2); % linea vuota all'inizio
+xlim([0 2*pi]);
+ylim([-1.2 1.2]);
+
+for k = 1:length(x)
+    set(h, 'XData', x(1:k), 'YData', y(1:k)); % aggiorna la curva fino al punto k
+    pause(0.03); % tempo tra i frame
+end
+
+%% 3️⃣ Evitare flickering e migliorare fluidità
+
+% drawnow forza l’aggiornamento del grafico immediatamente
+% utile quando si fanno più aggiornamenti rapidi
+
+x = linspace(0, 2*pi, 100);
+y = cos(x);
+
+figure;
+h = plot(NaN, NaN, 'g-', 'LineWidth', 2);
+xlim([0 2*pi]);
+ylim([-1.2 1.2]);
+
+for k = 1:length(x)
+    set(h, 'XData', x(1:k), 'YData', y(1:k));
+    drawnow; % forza refresh del grafico
+    pause(0.02);
+end
+
+%% 4️⃣ Animare un punto che segue una traiettoria (es. cerchio)
+
+t = 0:0.1:10;
+x = cos(t);
+y = sin(t);
+
+figure;
+plot(x, y, 'k--'); % traiettoria di riferimento (opzionale)
+hold on;
+punto = plot(NaN, NaN, 'ro', 'MarkerSize', 10); % punto mobile
+
+for k = 1:length(t)
+    set(punto, 'XData', x(k), 'YData', y(k));
+    drawnow;
+    pause(0.05);
+end
+
+%% ℹ️ Note utili
+
+% - set(obj, 'Prop', value): aggiorna proprietà di un oggetto grafico
+% - pause(t): ferma l’esecuzione per t secondi (es. pause(0.05))
+% - drawnow: forza aggiornamento immediato del plot (più fluido)
+% - hold on/off: permette di disegnare più oggetti sullo stesso grafico
+% - xlim / ylim: imposta limiti degli assi, utile per evitare flickering
+
+% ✅ Fine cheat sheet
