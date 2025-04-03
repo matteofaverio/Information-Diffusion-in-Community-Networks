@@ -1,4 +1,4 @@
-function [finalOpinions, totalIterations, opinionHistory] = HK(adjacencyMatrix, initialOpinions, confidenceLevels)
+function [finalOpinions, it, opinionHistory] = HK(A, W, initialOpinions, confidence)
 
 %
 % Inputs:
@@ -13,39 +13,41 @@ function [finalOpinions, totalIterations, opinionHistory] = HK(adjacencyMatrix, 
 %
 % Usage:
 %   [finalOpinions, totalIterations, opinionHistory] = HK_model(A, x_0, confidence)
+%
 
 n = length(initialOpinions);
 opinionChange = 1;  % Track opinion changes
-tolerance = 1e-3;   % Convergence threshold
-maxIterations = 100; % Maximum allowed iterations
-iteration = 0;      % Iteration counter
+toll = 1e-3;   % Convergence threshold
+maxit = 100; % Maximum allowed iterations
+it = 0;      % Iteration counter
 
 currentOpinions = initialOpinions;
 opinionHistory = currentOpinions; % Store opinions at each step
 
-while (opinionChange > tolerance && iteration < maxIterations)
+while (opinionChange > toll && it < maxit)
     
-    % Compute the neighborhood matrix based on confidence levels and adjacency
-    I = (abs(currentOpinions - currentOpinions') < confidenceLevels) & adjacencyMatrix;
-    
-    % Compute next opinions 
-    neighborCounts = sum(I, 2); % Number of neighbors per agent, including itself
-    nextOpinions = currentOpinions; % Initialize next state
-    validAgents = (neighborCounts > 1); % Agents that have neighbors
-    nextOpinions(validAgents) = sum(I(validAgents, :) .* currentOpinions', 2) ./ neighborCounts(validAgents);
-    
-    % Store opinion history
-    opinionHistory = [opinionHistory, nextOpinions];
+    nextOpinions = zeros(n,1);
 
-    % Compute total opinion change
+    for i = 1:n
+        flag = 1
+        neighbours = find(A(i,:));
+        close_enough = find( abs(currentOpinions(neighbours)-currentOpinions(i)) < confidence(i));
+        influencers = neighbours(close_enough);
+        I = length(influencers);
+
+        nextOpinions(i) = (W(influencers,i).*currentOpinions(influencers));
+        nextOpinions(i) = (I*nextOpinions(i) + currentOpinions(i))/(I+1);
+
+    end
+
     opinionChange = sum(abs(currentOpinions - nextOpinions));
-
-    % Update opinions and iteration count
     currentOpinions = nextOpinions;
-    iteration = iteration + 1;
+    opinionHistory = [opinionHistory, nextOpinions];
+    it = it + 1;
+    
 end
 
 finalOpinions = currentOpinions;
-totalIterations = iteration;
 
 end
+
