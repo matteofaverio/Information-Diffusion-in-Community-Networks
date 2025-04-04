@@ -92,17 +92,6 @@ end
 save('nmiresults.mat','nmis');
 %%
 
-for m = 1:mm
-    for g = 1:gg
-        for b = 1:bb
-            for d = 1:dd
-                Q = community_louvain(A(:,:,m,g,b,d));
-                nmis(m,g,b,d) = nmi(c(:,m,g,b,d),Q);
-            end
-        end
-    end
-end
-
 
 
 %%

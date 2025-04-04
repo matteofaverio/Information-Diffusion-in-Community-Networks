@@ -14,6 +14,8 @@ function [A,AA,c,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min)
 %   A: adjacency matrix of the generated graph
 %   c: vector indicating which community each node belongs to
 
+maxit = 2000;
+
 A = zeros(n);
 % Generazione dei gradi dei nodi in base a una power law distribution
 [dd, d_max] = powerLaw_degree(n,gamma,d_min,d);
@@ -37,7 +39,9 @@ inhabits = zeros(N,1);
 
 % assegno ogni nodo a una comunità che può contenerlo
 % ripeto finchè a tutti i nodi non è stata assegnata una comunità:
-while sum(homeless) > 0
+it = 0;
+while sum(homeless) > 0 && it < 10*n
+    it = it+1;
 
     % scelgo un nodo a caso senza una comunità
     to_pick = randi([1, sum(homeless)]);
@@ -67,7 +71,14 @@ while sum(homeless) > 0
         end
         c(i) = comm;
     end
-    % fprintf('nodo %d assegnato alla comunità %d\n', i,comm)
+    
+end
+fprintf('numero tentativi assegnazione %d\n', it)
+if it == n*10
+    fprintf('Comunità non create')
+    A = nan(n);
+    AA = A;
+    return
 end
 %fprintf('Nodi assegnati alle comunità\n');
 
@@ -102,13 +113,15 @@ for i = 1:N
         % collegamenti mancanti
         L = L + deg.*(deg == d);
         
+        it = 0;     % contatore delle iterazioni
+
         % se la lista conitene un unico nodo passo al grado successivo
         if sum(L > 0) < 2
             continue;
         end
-        it = 0;     % contatore delle iterazioni
+        
 
-        while min(L(L>0)) > degrees(j+1) && it < 2000
+        while min(L(L>0)) > degrees(j+1) && it < maxit
                 % scelgo il primo nodo da collegare
                 first_pick = randi([1, sum(L)]);
 
@@ -146,7 +159,10 @@ for i = 1:N
                 A(k,h) = A(k,h) + 1;
         end
     end
-    if it == 1000
+
+    it = 0;
+
+    if it == maxit
         fprintf('Comunità non create')
         A = nan(n);
         return
@@ -154,8 +170,8 @@ for i = 1:N
 
     % ripeto il procedimento per il grado più basso
     L = L + deg.*(deg == degrees(end));
-    it = 0;
-    while sum(L) > 1 && it < 2000
+    
+    while sum(L) > 1 && it < maxit
 
             first_pick = randi([1, sum(L)]);
             % trovo il nodo a cui corrisponde la prima scelta
@@ -196,9 +212,10 @@ for i = 1:N
     residual_links = residual_links + L;
 end
 AA = A;
-if it == 1000
+if it == maxit
     fprintf('Comunità non create')
     A = nan(n);
+    AA = A;
     return
 else
     fprintf('Comunità create\n')
@@ -209,7 +226,7 @@ L1 = L1 + residual_links;
 % contatore delle iterazioni
 it = 0;
 
-while sum(L1) > 1 && it < 2000
+while sum(L1) > 1 && it < maxit
 
     first_pick = randi([1, sum(L1)]);
 
@@ -242,7 +259,7 @@ while sum(L1) > 1 && it < 2000
     A(k,h) = A(k,h) + 1;
 end
 
-if it == 1000
+if it == maxit
     fprintf('Comunità non collegate')
     A = nan(n);
     return
