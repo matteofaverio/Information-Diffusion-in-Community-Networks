@@ -4,7 +4,7 @@ function [A_rewired,err_agg,var_agg] = rewiring(A, comm, mu, max_iter)
 % comm      : vettore di assegnazione comunità per ogni nodo (lunghezza N)
 % mu        : frazione desiderata di collegamenti interni per ogni nodo
 % max_iter  : numero massimo di iterazioni di rewiring
-a = 0;
+
 N = size(A, 1);           
 d = sum(A, 2);            
 
@@ -17,7 +17,7 @@ end
 
 err = (k_in_desired - k_in_current);
 err_agg = mean(err);
-var_agg = (sum((err-mean(err)).^2))./N;
+var_agg = (sum((err).^2))./N;
 
 % lista degli archi esterni
 [I, J] = find(triu(A));
@@ -246,7 +246,7 @@ while iter < max_iter && improved && err_agg(end)>0
     end
 
     err_agg = [err_agg , mean(err)];
-    var = (sum((err-err_agg(end)).^2))./N;
+    var = (sum((err).^2))./N;
     var_agg = [var_agg , var];
     
     improved = improved1 || improved2;  
