@@ -1,4 +1,4 @@
-function [finalOpinions, totalIterations, opinionHistory] = HK_Optimized(A, W, initialOpinions, confidence)
+function [finalOpinions, totalIterations, opinionHistory] = HK(A, W, initialOpinions, confidence)
 % Optimized implementation of the HK model without changing its purpose.
 %
 % Inputs:
@@ -12,8 +12,9 @@ function [finalOpinions, totalIterations, opinionHistory] = HK_Optimized(A, W, i
 %   totalIterations - number of iterations until convergence
 %   opinionHistory - matrix storing opinion evolution over time
 
+%initialOpinions(agents) = 1;
 n = length(initialOpinions);
-tolerance = 1e-6;
+tolerance = 1e-3;
 maxIterations = 10000;
 opinionChange = 1;
 iteration = 0;
@@ -29,14 +30,12 @@ end
 opinionHistory = zeros(n, maxIterations + 1);
 opinionHistory(:, 1) = currentOpinions;
 
-% Main iterative loop.
 while opinionChange > tolerance && iteration < maxIterations
     nextOpinions = zeros(n, 1);
     
     for i = 1:n
 
         neighbors = neighborsCell{i};
-        
         % Identify influencers: neighbors whose opinions are within the confidence threshold.
         opinionDifferences = abs(currentOpinions(neighbors) - currentOpinions(i));
         withinConfidence = opinionDifferences < confidence(i);
@@ -54,6 +53,9 @@ while opinionChange > tolerance && iteration < maxIterations
             % If no influencer is within confidence, retain current opinion.
             nextOpinions(i) = currentOpinions(i);
         end
+        %nextOpinions(agents) = 1;
+
+
     end
     
     % Calculate the total change in opinions and update the history.

@@ -14,12 +14,12 @@ function [A,AA,c,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min)
 %   A: adjacency matrix of the generated graph
 %   c: vector indicating which community each node belongs to
 
-maxit = 2000;
+maxit = 1000;
 
 A = zeros(n);
 % Generazione dei gradi dei nodi in base a una power law distribution
 [dd, d_max] = powerLaw_degree(n,gamma,d_min,d);
-%fprintf('d_max = %3d\n',d_max)
+% fprintf('d_max = %3d\n',d_max)
 
 % Generazione delle dimensioni delle comunità
 [S,N] = powerLaw_communities(n,d_min,d_max,gamma_c);
