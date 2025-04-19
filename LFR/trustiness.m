@@ -21,8 +21,4 @@ for i = 1:n
     end
 end
 
-colSum = sum(W,1);
-W = W./colSum;
-W(isnan(W)) = 0;
-
 end
