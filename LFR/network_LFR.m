@@ -14,7 +14,7 @@ function [A,AA,c,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min)
 %   A: adjacency matrix of the generated graph
 %   c: vector indicating which community each node belongs to
 
-maxit = 2000;
+maxit = 1000;
 
 A = zeros(n);
 % Generazione dei gradi dei nodi in base a una power law distribution
@@ -23,7 +23,7 @@ A = zeros(n);
 
 % Generazione delle dimensioni delle comunità
 [S,N] = powerLaw_communities(n,d_min,d_max,gamma_c);
-fprintf('Numero di comunità generate: %d\n', N)
+% fprintf('Numero di comunità generate: %d\n', N)
 
 %% Assegnazione di ogni nodo a una comunità
 
@@ -73,9 +73,9 @@ while sum(homeless) > 0 && it < 10*n
     end
     
 end
-fprintf('numero tentativi assegnazione %d\n', it)
+% fprintf('numero tentativi assegnazione %d\n', it)
 if it == n*10
-    fprintf('Comunità non create')
+    fprintf('Nodi non assegnati alle comunità\n\n')
     A = nan(n);
     AA = A;
     return
@@ -122,11 +122,24 @@ for i = 1:N
         
 
         while min(L(L>0)) > degrees(j+1) && it < maxit
+                %%%%%
                 % scelgo il primo nodo da collegare
                 first_pick = randi([1, sum(L)]);
 
                 % trovo il nodo a cui corrisponde la prima scelta
                 k = find(cumsum(L) >= first_pick, 1);
+                %%%%%
+
+                % %%%%%
+                % % seleziono sempre i nodi con più collegamenti
+                % maxL = max(L);
+                % 
+                % % Trova gli indici degli elementi che assumono il valore massimo
+                % ind_max = find(L == maxL);
+                % 
+                % % Seleziona casualmente uno degli indici
+                % k = ind_max(randi(length(ind_max)));
+                % %%%%%
 
                 % faccio in modo di scegliere un nodo diverso da quello
                 % precedente
@@ -139,12 +152,25 @@ for i = 1:N
                     it = it+1;
                     continue
                 end
-
+                %%%%%
                 second_pick = randi([1, sum(L_mod)]);
 
                 % trovo il nodo a cui corrisponde la seconda scelta
                 h = find(cumsum(L_mod) >= second_pick, 1);
-                   
+                %%%%%   
+                
+                % %%%%%
+                % % seleziono sempre i nodi con più collegamenti
+                % maxL_mod = max(L_mod);
+                % 
+                % % Trova gli indici degli elementi che assumono il valore massimo
+                % ind_max_mod = find(L_mod == maxL_mod);
+                % 
+                % % Seleziona casualmente uno degli indici
+                % k = ind_max_mod(randi(length(ind_max_mod)));
+                % %%%%%
+
+                
                 % se il collegamento esiste già ripeto il processo
                 if A(k,h) + A(h,k) > 0
                     it = it+1;
@@ -163,8 +189,9 @@ for i = 1:N
     it = 0;
 
     if it == maxit
-        fprintf('Comunità non create')
+        fprintf('Comunità non create (primo step)\n\n')
         A = nan(n);
+        AA = A;
         return
     end
 
@@ -177,13 +204,14 @@ for i = 1:N
             % trovo il nodo a cui corrisponde la prima scelta
             k = find(cumsum(L) >= first_pick, 1);
           
-             % faccio in modo di scegliere un nodo diverso da quello
+            % faccio in modo di scegliere un nodo diverso da quello
             % precedente
             L_mod = L;
             L_mod(k) = 0; 
             
             % se non ci sono altri nodi da collegare ripeto la prima
             % scelta
+
             if sum(L_mod) == 0
                 it = it+1;
                 continue
@@ -213,7 +241,7 @@ for i = 1:N
 end
 AA = A;
 if it == maxit
-    fprintf('Comunità non create')
+    fprintf('Comunità non create (secondo step)\n\n')
     A = nan(n);
     AA = A;
     return
@@ -260,10 +288,10 @@ while sum(L1) > 1 && it < maxit
 end
 
 if it == maxit
-    fprintf('Comunità non collegate')
+    fprintf('Comunità non collegate\n\n')
     A = nan(n);
     return
 end
-%fprintf('Comunità collegate\n')
+fprintf('Comunità collegate\n\n')
 A = A+A';
 end

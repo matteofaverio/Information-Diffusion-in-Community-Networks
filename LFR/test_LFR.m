@@ -1,11 +1,11 @@
 clc, clear, close all
 addpath(genpath('C:\Users\giogu\OneDrive - Politecnico di Milano\Desktop\Poli\Terzo anno\Tesi\Information-Diffusion-in-Community-Networks'));
-n = 1000;
+n = 2000;
 gamma = 3;
-gamma_c = 1;
+gamma_c = 2;
 d = 25;
 d_min = 15;
-mu = 0.5;
+mu = 0.4;
 
 tic
 [A,AA,c,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min);
@@ -75,10 +75,10 @@ for i = 1:n_tests
         for g = 1:gg
             for b = 1:bb
                 for d = 1:dd
-                    [A(:,:,m,g,b,d),AA,c(:,m,g,b,d),degrees] = network_LFR(n,d_mean(d),mu(m),gamma(g), beta(b), d_min(d));
-                    if sum(sum(isnan(A))) > 0
-                        nmis(i,m,g,b,d) = nan;
-                        continue
+                    flag = 1;
+                    while flag == 1
+                        [A(:,:,m,g,b,d),AA,c(:,m,g,b,d),degrees] = network_LFR(n,d_mean(d),mu(m),gamma(g), beta(b), d_min(d));
+                        flag = sum(sum(isnan(A))) > 0;
                     end
                     Q = community_louvain(A(:,:,m,g,b,d));
                     nmis(i,m,g,b,d) = nmi(c(:,m,g,b,d),Q);
