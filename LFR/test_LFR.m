@@ -1,18 +1,18 @@
-clc, clear, close all
+clear, close all
 addpath(genpath('C:\Users\giogu\OneDrive - Politecnico di Milano\Desktop\Poli\Terzo anno\Tesi\Information-Diffusion-in-Community-Networks'));
-n = 1000;
+n = 3000;
 gamma = 3;
 gamma_c = 2;
-d = 17;
-d_min = 9;
+d = 12;
+d_min = 8;
 mu = 0.4;
 
 
-for i = 1:10
-    tic
-[A,AA,c,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min);
+% for i = 1:10
+tic
+[A,AA,c,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min,100);
 toc
-end
+% end
 
 
 %% COMMUNITY DETECTION

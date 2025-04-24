@@ -7,7 +7,7 @@ gamma = 3;
 gamma_c = 3;
 d = 10;
 d_min = 7; 
-mu = 0.1;
+mu = 0.5;
 
 tic
 [A,~,c,dd] = LFR2(n,d,mu,gamma, gamma_c, d_min); 

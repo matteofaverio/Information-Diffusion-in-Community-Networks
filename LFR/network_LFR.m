@@ -1,4 +1,4 @@
-function [A,AA,c,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min)
+function [A,AA,c,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min,maxit)
 %network_LFR creates a Lancichinetti-Fortunato-Radicchi network with n
 %nodes,average connectivity d,and mixing parameter mu. The nodes
 %distribution follows a power law with exponent gamma and the community
@@ -13,8 +13,6 @@ function [A,AA,c,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min)
 %   Output Values:
 %   A: adjacency matrix of the generated graph
 %   c: vector indicating which community each node belongs to
-
-maxit = 1000;
 
 A = zeros(n);
 % Generazione dei gradi dei nodi in base a una power law distribution
