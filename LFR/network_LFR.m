@@ -90,57 +90,126 @@ A = zeros(n);
 residual_links = zeros(n,1);
 % vesttore contenente il numero di collegamenti intercomunitari
 L1 = dd;
+done = 0;
+iter = 0;
 
-for i = 1:N
-    % vettore contenente i collegamenti intracomunitari di ogni nodo
-    deg = round( mu*dd.*(c == i));
-
-    % rimuovo i collegamenti che verranno effettuati dai collegamenti
-    % intracomunitari
-    L1 = L1-deg;
-
-    % lista ordinata dei numeri di collegamenti fra i nodi della comunità
-    degrees = unique(sort(deg,'descend'));
-
-    % lista che conterrà il numero di collegamenti mancanti per ogni nodo
-    L = zeros(n,1); 
+while done == 0 && iter < 10
+    for i = 1:N
+        % vettore contenente i collegamenti intracomunitari di ogni nodo
+        deg = round( mu*dd.*(c == i));
     
-    % faccio un ciclo sui valori dei gradi interni alla comunità
-    for j =  1:( length(degrees)-1 )
-        d = degrees(j);
-
-        % aggiungo i nodi con il grado corrente alla lista contenente i
-        % collegamenti mancanti
-        L = L + deg.*(deg == d);
+        % rimuovo i collegamenti che verranno effettuati dai collegamenti
+        % intracomunitari
+        L1 = L1-deg;
+    
+        % lista ordinata dei numeri di collegamenti fra i nodi della comunità
+        degrees = unique(sort(deg,'descend'));
+    
+        % lista che conterrà il numero di collegamenti mancanti per ogni nodo
+        L = zeros(n,1); 
         
-        it = 0;     % contatore delle iterazioni
+        % faccio un ciclo sui valori dei gradi interni alla comunità
+        for j =  1:( length(degrees)-1 )
+            d = degrees(j);
+    
+            % aggiungo i nodi con il grado corrente alla lista contenente i
+            % collegamenti mancanti
+            L = L + deg.*(deg == d);
+            
+            it = 0;     % contatore delle iterazioni
+    
+            % se la lista conitene un unico nodo passo al grado successivo
+            if sum(L > 0) < 2
+                continue;
+            end
+            
+    
+            while min(L(L>0)) > degrees(j+1) && it < maxit
+                    %%%%%
+                    % scelgo il primo nodo da collegare
+                    first_pick = randi([1, sum(L)]);
+    
+                    % trovo il nodo a cui corrisponde la prima scelta
+                    k = find(cumsum(L) >= first_pick, 1);
+                    %%%%%
+    
 
-        % se la lista conitene un unico nodo passo al grado successivo
-        if sum(L > 0) < 2
-            continue;
+                    % %%%%%
+                    % % seleziono sempre i nodi con più collegamenti
+                    % maxL = max(L);
+                    % 
+                    % % Trova gli indici degli elementi che assumono il valore massimo
+                    % ind_max = find(L == maxL);
+                    % 
+                    % % Seleziona casualmente uno degli indici
+                    % k = ind_max(randi(length(ind_max)));
+                    % %%%%%
+    
+                    % faccio in modo di scegliere un nodo diverso da quello
+                    % precedente
+                    L_mod = L;
+                    L_mod(k) = 0; 
+                    
+                    % se non ci sono altri nodi da collegare ripeto la prima
+                    % scelta
+                    if sum(L_mod) == 0
+                        it = it+1;
+                        continue
+                    end
+                    %%%%%
+                    second_pick = randi([1, sum(L_mod)]);
+    
+                    % trovo il nodo a cui corrisponde la seconda scelta
+                    h = find(cumsum(L_mod) >= second_pick, 1);
+                    %%%%%   
+                    
+
+                    
+                    % %%%%%
+                    % % seleziono sempre i nodi con più collegamenti
+                    % maxL_mod = max(L_mod);
+                    % 
+                    % % Trova gli indici degli elementi che assumono il valore massimo
+                    % ind_max_mod = find(L_mod == maxL_mod);
+                    % 
+                    % % Seleziona casualmente uno degli indici
+                    % k = ind_max_mod(randi(length(ind_max_mod)));
+                    % %%%%%
+    
+                    
+                    % se il collegamento esiste già ripeto il processo
+                    if A(k,h) + A(h,k) > 0
+                        it = it+1;
+                        continue
+                    end
+    
+                    % rimuovo i collegamenti effettuati dalla lista
+                    L(h) = L(h) - 1;
+                    L(k) = L(k) - 1;
+    
+                    % creo il collegmento tra i due nodi
+                    A(k,h) = A(k,h) + 1;
+            end
         end
+    
+        it = 0;
+    
+        if it == maxit
+            fprintf('Comunità non create (primo step)\n\n')
+            A = nan(n);
+            AA = A;
+            return
+        end
+    
+        % ripeto il procedimento per il grado più basso
+        L = L + deg.*(deg == degrees(end));
         
-
-        while min(L(L>0)) > degrees(j+1) && it < maxit
-                %%%%%
-                % scelgo il primo nodo da collegare
+        while sum(L) > 1 && it < maxit
+    
                 first_pick = randi([1, sum(L)]);
-
                 % trovo il nodo a cui corrisponde la prima scelta
                 k = find(cumsum(L) >= first_pick, 1);
-                %%%%%
-
-                % %%%%%
-                % % seleziono sempre i nodi con più collegamenti
-                % maxL = max(L);
-                % 
-                % % Trova gli indici degli elementi che assumono il valore massimo
-                % ind_max = find(L == maxL);
-                % 
-                % % Seleziona casualmente uno degli indici
-                % k = ind_max(randi(length(ind_max)));
-                % %%%%%
-
+              
                 % faccio in modo di scegliere un nodo diverso da quello
                 % precedente
                 L_mod = L;
@@ -148,99 +217,44 @@ for i = 1:N
                 
                 % se non ci sono altri nodi da collegare ripeto la prima
                 % scelta
+    
                 if sum(L_mod) == 0
                     it = it+1;
                     continue
                 end
-                %%%%%
+    
                 second_pick = randi([1, sum(L_mod)]);
-
+    
                 % trovo il nodo a cui corrisponde la seconda scelta
                 h = find(cumsum(L_mod) >= second_pick, 1);
-                %%%%%   
-                
-                % %%%%%
-                % % seleziono sempre i nodi con più collegamenti
-                % maxL_mod = max(L_mod);
-                % 
-                % % Trova gli indici degli elementi che assumono il valore massimo
-                % ind_max_mod = find(L_mod == maxL_mod);
-                % 
-                % % Seleziona casualmente uno degli indici
-                % k = ind_max_mod(randi(length(ind_max_mod)));
-                % %%%%%
-
                 
                 % se il collegamento esiste già ripeto il processo
                 if A(k,h) + A(h,k) > 0
                     it = it+1;
                     continue
                 end
-
+    
                 % rimuovo i collegamenti effettuati dalla lista
                 L(h) = L(h) - 1;
                 L(k) = L(k) - 1;
-
+    
                 % creo il collegmento tra i due nodi
                 A(k,h) = A(k,h) + 1;
         end
+        % resgistro in una lista tutti i collegamenti che non sono stati
+        % effettuati
+        residual_links = residual_links + L;
     end
-
-    it = 0;
-
+    AA = A;
     if it == maxit
-        fprintf('Comunità non create (primo step)\n\n')
-        A = nan(n);
-        AA = A;
-        return
+        iter = iter+1;
+        continue
+    else
+        done = 1;
     end
-
-    % ripeto il procedimento per il grado più basso
-    L = L + deg.*(deg == degrees(end));
-    
-    while sum(L) > 1 && it < maxit
-
-            first_pick = randi([1, sum(L)]);
-            % trovo il nodo a cui corrisponde la prima scelta
-            k = find(cumsum(L) >= first_pick, 1);
-          
-            % faccio in modo di scegliere un nodo diverso da quello
-            % precedente
-            L_mod = L;
-            L_mod(k) = 0; 
-            
-            % se non ci sono altri nodi da collegare ripeto la prima
-            % scelta
-
-            if sum(L_mod) == 0
-                it = it+1;
-                continue
-            end
-
-            second_pick = randi([1, sum(L_mod)]);
-
-            % trovo il nodo a cui corrisponde la seconda scelta
-            h = find(cumsum(L_mod) >= second_pick, 1);
-            
-            % se il collegamento esiste già ripeto il processo
-            if A(k,h) + A(h,k) > 0
-                it = it+1;
-                continue
-            end
-
-            % rimuovo i collegamenti effettuati dalla lista
-            L(h) = L(h) - 1;
-            L(k) = L(k) - 1;
-
-            % creo il collegmento tra i due nodi
-            A(k,h) = A(k,h) + 1;
-    end
-    % resgistro in una lista tutti i collegamenti che non sono stati
-    % effettuati
-    residual_links = residual_links + L;
 end
-AA = A;
-if it == maxit
+
+if iter == 10
     fprintf('Comunità non create (secondo step)\n\n')
     A = nan(n);
     AA = A;
@@ -248,6 +262,7 @@ if it == maxit
 else
     fprintf('Comunità create\n')
 end
+
 %% creazione dei collegamenti fra le comunità
 L1 = L1 + residual_links;
 

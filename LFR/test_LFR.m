@@ -1,15 +1,19 @@
 clc, clear, close all
 addpath(genpath('C:\Users\giogu\OneDrive - Politecnico di Milano\Desktop\Poli\Terzo anno\Tesi\Information-Diffusion-in-Community-Networks'));
-n = 2000;
+n = 1000;
 gamma = 3;
 gamma_c = 2;
-d = 25;
-d_min = 15;
+d = 17;
+d_min = 9;
 mu = 0.4;
 
-tic
+
+for i = 1:10
+    tic
 [A,AA,c,dd] = network_LFR(n,d,mu,gamma, gamma_c, d_min);
 toc
+end
+
 
 %% COMMUNITY DETECTION
 Q = community_louvain(A);
