@@ -1,4 +1,4 @@
-function [A,A_intra,c,dd] = LFR2(n,d,mu,gamma, gamma_c, d_min)
+function [A,A_intra,c,dd] = LFR(n,d,mu,gamma, gamma_c, d_min)
 %%
 % network_LFR creates a Lancichinetti-Fortunato-Radicchi network with n
 %nodes,average connectivity d,and mixing parameter mu. The nodes
