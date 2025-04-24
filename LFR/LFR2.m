@@ -1,4 +1,4 @@
-function [A,A_intra,c,dd] = LFR2(n,d,mu,gamma, gamma_c, d_min, Amp, k)
+function [A,A_intra,c,dd] = LFR2(n,d,mu,gamma, gamma_c, d_min)
 %%
 % network_LFR creates a Lancichinetti-Fortunato-Radicchi network with n
 %nodes,average connectivity d,and mixing parameter mu. The nodes
@@ -60,13 +60,7 @@ for comm = 1:N
     x = dd(nodes_comm)*mu;
     f = (x - floor(x));
 
-    %A = 0.6;
-    %k = 5;
-    sig = 1/(1 + exp(-k*(mu - 0.5)));
-    correction = Amp*(sig - 0.5);
-    threshold = (1-mu) + correction;
-
-    target_internal = floor(x) + ( f > threshold );
+    target_internal =  floor(x) + ( f > (1-mu) );
 
     % Costruzione della tabella per la comunità
     T = zeros(length(nodes_comm),2);

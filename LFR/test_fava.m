@@ -2,43 +2,34 @@
 
 clear 
 
-
+n = 3000;
 gamma = 3;
 gamma_c = 3;
 d = 10;
 d_min = 7; 
+mu = 0.1;
 
-mu_targets = 0.01:0.03:0.99;    % ipotetici valori target per mu_reale
-n_values   = 1000:100:2000;  % esempio di numero di nodi
+tic
+[A,~,c,dd] = LFR2(n,d,mu,gamma, gamma_c, d_min); 
+toc
 
-results = struct('mu_target', [], 'n', [], 'A_opt', [], 'k_opt', []);
+M = (c == c');
+sameCommCounts1 = sum(A .* M, 2);
+degrees1 = sum(A, 2);
+fractions1 = sameCommCounts1 ./ degrees1;
+fractions1(degrees1 == 0) = 0;
+mean(fractions1)
+%%
+tic
+AA = rewiring(A,c,mu,10000);
+toc
 
-index = 1;
-
-for n = n_values
-
-    for mu_target = mu_targets
-
-        % Definisci la funzione obiettivo che ora dipende anche da n:
-        objective = @(params) objectiveFun(n,d,mu_target,gamma, gamma_c, d_min,params(1),params(2));
-        initial_guess = [1, 1];  % ipotesi iniziale per [A, k]
-        
-        % Esegui l'ottimizzazione (senza vincoli, ad esempio)
-        lb = [0, 0];   % limiti inferiori
-        ub = [];       % se non ci sono limiti superiori, puoi lasciarlo vuoto o impostare [Inf, Inf]
-
-        %options = optimoptions('fmincon', 'Display', 'iter');  % per vedere l'andamento dell'ottimizzazione
-        opt_params = fmincon(objective, initial_guess, [], [], [], [], lb, ub, [], []);
-        
-        % Salva i risultati
-        results(index).mu_target = mu_target;
-        results(index).n = n;
-        results(index).A_opt = opt_params(1);
-        results(index).k_opt = opt_params(2);
-        index = index + 1;
-
-    end
-end
+M = (c == c');
+sameCommCounts1 = sum(AA .* M, 2);
+degrees1 = sum(AA, 2);
+fractions1 = sameCommCounts1 ./ degrees1;
+fractions1(degrees1 == 0) = 0;
+mean(fractions1)
 
 %%
 
@@ -48,58 +39,44 @@ gamma_c = 3;
 d = 12;
 d_min = 7; 
 
-t = 99;
+t = 50;
 tests = 5;
-tr = 100;
 
 mu = linspace(0.01,0.99,t);
-% AVG_MU = zeros(t,tests);
-parameters = zeros(t,3);
-tic
+AVG_MU = zeros(t,tests);
+
 
 for i = 1:t
 
-    A = 1;
-    k = 1;
+    for j = 1:tests
 
-    mu_test = zeros(tests,1);
-    for j = 1:tr
-
+        %tic
+        [A,~,c,dd] = LFR2(n,d,mu(i),gamma, gamma_c, d_min); 
+        %toc
         
-        for s = 1:tests
-    
-            %tic
-            [A,~,c,dd] = LFR2(n,d,mu(i),gamma, gamma_c, d_min, A, k); 
-            %toc
-            
-            M = (c == c');
-            sameCommCounts1 = sum(A .* M, 2);
-            degrees1 = sum(A, 2);
-            fractions1 = sameCommCounts1 ./ degrees1;
-            fractions1(degrees1 == 0) = 0;
-            mu_test(s) = mean(fractions1);
-   
-        end
+        M = (c == c');
+        sameCommCounts1 = sum(A .* M, 2);
+        degrees1 = sum(A, 2);
+        fractions1 = sameCommCounts1 ./ degrees1;
+        fractions1(degrees1 == 0) = 0;
+        AVG_MU(i,j) = mean(fractions1);
 
     end
-    parameters(i,:) = [mu(i) A k];
-    toc
+
     fprintf('mu = %d\n\n', mu(i));
-    tic
+
 end
-toc
+
+
 
 %%
 
 nonzero_count = sum(AVG_MU ~= 0, 2); 
 row_sum = sum(AVG_MU, 2);  
 media_righe = row_sum ./ nonzero_count;
-nonzero_count1 = sum(AVG_MU1 ~= 0, 2); 
-row_sum1 = sum(AVG_MU1, 2);  
-media_righe1 = row_sum1 ./ nonzero_count1;
 
 x = mu;
-y = mu'-media_righe;
+y = media_righe - mu';
 
 coeff = polyfit(x, y, 1);
 x_fit = linspace(min(x), max(x), 100);  % crea una griglia fine

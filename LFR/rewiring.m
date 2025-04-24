@@ -43,7 +43,7 @@ improved = true;
 count1 = 0;
 count2 = 0;
 
-while iter < max_iter && improved && err_agg(end)>0
+while iter < max_iter && improved && abs(err_agg(end))>1e-3
 
     improved = false;
 
