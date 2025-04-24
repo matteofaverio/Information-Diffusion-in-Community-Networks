@@ -60,7 +60,7 @@ for comm = 1:N
     x = dd(nodes_comm)*mu;
     f = (x - floor(x));
 
-    target_internal =  floor(x) + ( f > (1-mu) );
+    target_internal =  floor(x) + ( f > (1-mu)^2 );
 
     % Costruzione della tabella per la comunità
     T = zeros(length(nodes_comm),2);

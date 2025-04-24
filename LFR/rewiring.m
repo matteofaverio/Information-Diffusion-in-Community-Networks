@@ -39,19 +39,20 @@ for idx = 1:length(I)
 end
 
 iter = 0;
-improved = true;
+improved2 = true;
 count1 = 0;
 count2 = 0;
 
-while iter < max_iter && improved && abs(err_agg(end))>1e-3
+while iter < max_iter && improved2 && abs(err_agg(end))>1e-3
 
     improved = false;
 
+    %{
     num_ext = size(external_edges, 1);
     to_check_max = ones(num_ext,1);
     improved1 = false;
     
-    while ~improved1
+    %while ~improved1
         
         to_adjust = [];
         flag = 0;
@@ -152,7 +153,7 @@ while iter < max_iter && improved && abs(err_agg(end))>1e-3
             to_check_max(idx1) = 0;
         end
     end
-    
+    %}
     num_int = size(internal_edges, 1);
     
     to_check_min = ones(num_int,1);
@@ -249,7 +250,7 @@ while iter < max_iter && improved && abs(err_agg(end))>1e-3
     var = (sum((err).^2))./N;
     var_agg = [var_agg , var];
     
-    improved = improved1 || improved2;  
+    %improved = improved1 || improved2;  
     
     iter = iter + 1;
 
