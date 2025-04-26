@@ -41,7 +41,8 @@ for ii = 1:n
     viable_comms = intersect(available_comms,big_enough_comms);
     if isempty(viable_comms)
         fprintf('Impossibile inserire i nodi nelle comunità generate\n')
-        return
+        A = nan(n);
+        return 
     end
     % Tra quelle valide, scegli quella con il maggiore spazio residuo
     [~, best_idx] = max(S(viable_comms) - inhabits(viable_comms));
