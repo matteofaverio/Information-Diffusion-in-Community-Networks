@@ -20,7 +20,7 @@ for i = 1:t
     flag = true;
     tic
     while flag
-    [A,~,c,dd] = network_LFR(n,d,mu(i),gamma, gamma_c, d_min);
+    [A,~,c,dd] = LFR2(n,d,mu(i),gamma, gamma_c, d_min);
     flag = sum(sum(isnan(A))) > 0;
     end
     toc
@@ -200,30 +200,30 @@ for i = 1:n_tries
     subplot(n_tries,n_tries,pos)
     imagesc(H);
     axis xy;  % Per avere 0 in basso e 1 in alto
-    colormap(hot);
-    %hcb = colorbar;
-    %hcb.Label.String = 'N° di nodi';
-    %title('Distribuzione delle opinioni durante le iterazioni');
-    %xlabel('Iterazioni');
-    %ylabel('Opinione');
+    colormap(spring);
+    hcb = colorbar;
+    hcb.Label.String = 'N° di nodi';
+    title('Distribuzione delle opinioni durante le iterazioni');
+    xlabel('Iterazioni');
+    ylabel('Opinione');
     
-    % --- PERSONALIZZAZIONE DELL'ASSE X (iterazioni) ---
-    % Mostra tick ogni 20 iterazioni (o come preferisci)
-    %xticks = 0:50:T;  % ogni 20 iterazioni
-    %set(gca, 'XTick', xticks);
-    %set(gca, 'XTickLabel', string(xticks));
+    %--- PERSONALIZZAZIONE DELL'ASSE X (iterazioni) ---
+    %Mostra tick ogni 20 iterazioni (o come preferisci)
+    xticks = 0:50:T;  % ogni 20 iterazioni
+    set(gca, 'XTick', xticks);
+    set(gca, 'XTickLabel', string(xticks));
     
-    % --- PERSONALIZZAZIONE DELL'ASSE Y (valori tra 0 e 1) ---
-    % Calcola i centri dei bin
-    %binCenters = 0.5*(edges(1:end-1) + edges(2:end));
+    %--- PERSONALIZZAZIONE DELL'ASSE Y (valori tra 0 e 1) ---
+    %Calcola i centri dei bin
+    binCenters = 0.5*(edges(1:end-1) + edges(2:end));
     
-    % Scegli tick significativi per y, es: ogni 0.2
-    %yticks_vals = 0:0.2:1;
-    % Trova gli indici più vicini nei binCenters
-    %[~, yticks] = min(abs(binCenters' - yticks_vals), [], 1);
+    %Scegli tick significativi per y, es: ogni 0.2
+    yticks_vals = 0:0.2:1;
+    %Trova gli indici più vicini nei binCenters
+    [~, yticks] = min(abs(binCenters' - yticks_vals), [], 1);
     
-    %set(gca, 'YTick', yticks);
-    %set(gca, 'YTickLabel', string(yticks_vals));
+    set(gca, 'YTick', yticks);
+    set(gca, 'YTickLabel', string(yticks_vals));
 
     end
 end
