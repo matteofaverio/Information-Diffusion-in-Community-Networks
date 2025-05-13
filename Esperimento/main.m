@@ -5,7 +5,7 @@ histOpsVSEps('test_mu085_processed');
 %% PLOT 25 ISTOGRAMMI (PIANI DI TAGLIO DI OPSvsEPS)
 
 N = 1e4;
-test = 'TEST_mu080_processed';
+test = 'test_mu080_processed';
 files = dir(fullfile(test,'*.mat'));
 
 names = sort({files.name});
@@ -32,5 +32,8 @@ for i = 1:numel(files)
 
 end
 
+%% PLOT ITERAZIONI DEI 10 TEST
+
+iterazioni('Data');
 
 
