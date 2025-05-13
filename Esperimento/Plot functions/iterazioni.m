@@ -1,4 +1,4 @@
-function plot_means_mu(main_folder)
+function iterazioni(main_folder)
 
 % PLOT_MEANS_MU  Reads .mat files from 10 subfolders, computes mean of the
 % third row across each file, and plots the results for mu = 0.5:0.05:0.95.
@@ -42,15 +42,15 @@ function plot_means_mu(main_folder)
             v = cell2mat(row3);          % 1x200 numeric
             means_i(j) = mean(v);
         end
-        % Plot this mu curve
+        % Plot this mu curve with specific color
         plot(x, means_i, 'LineWidth', 1.5);
     end
     
     % Finalize plot
     hold off;
     xlabel('x');
-    ylabel('ITERAZIONI MEDIE');
-    title('ITERAZIONI MEDIE RISPETTO A \mu');
+    ylabel('Mean of third row');
+    title('Mean values per file for different \mu');
     legend(legend_entries, 'Location', 'best');
     grid on;
 end
