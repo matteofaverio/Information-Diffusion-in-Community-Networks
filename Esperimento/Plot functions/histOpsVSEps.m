@@ -18,7 +18,7 @@ function histOpsVSEps(folderName)
 
     % --- Elenco e ordinamento file ---
     files = dir(fullfile(folderName,'*.mat'));
-    files = files(~strncmp({files.name}, '._', 2));
+    %files = files(~strncmp({files.name}, '._', 2));
     if numel(files)~=nEps
         error('Trovati %d file, ma ci aspettavamo %d (numero di epsilon)', ...
               numel(files), nEps);
@@ -67,7 +67,7 @@ function histOpsVSEps(folderName)
     ylabel('\epsilon','FontSize',12);
     zlabel('Frequenza media','FontSize',12);
     title('Distribuzione dello stato finale vs \epsilon (Istogramma 3D)','FontSize',14);
-    view(220, 20);
+    view(270,90);
     grid on;
 
     % scala colori
