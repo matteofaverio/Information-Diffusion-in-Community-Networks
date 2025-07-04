@@ -141,11 +141,35 @@ format shortG
 clusters
 histogram(data)
 
+%%
+
+folder = 'test_mu050_processed';
+
+files = dir(fullfile(folder, '*.mat'));
+nFiles = numel(files);
+
+for f = 1:nFiles
+
+    data = load(fullfile(folder, files(f).name));
+    outputCell = data.outputCell;  % Presuppone che la variabile si chiami outputCell
+    
+    % Ciclo sui 200 elementi nella seconda riga della cella
+    for i = 1:200
+        op_end = outputCell{2, i};
+        
+        
+        
+       
+    end
+end
 
 %%
 
 community_variance('Results/test_mu090_processed','Data/data_mu01.mat');
 
+%%
+
+variances_050_comm = mean_comm_var('processed_results');
 
 %%
 
@@ -198,3 +222,105 @@ end
 figure;
 histogram(mean_comm);
 
+%%
+idx=121;
+opinion_cell = outputCell(2,:);
+vec = double(opinion_cell{idx})/1000;
+histogram(vec);
+
+quanti = dbscan(vec, 0.04, 700);
+n = max(quanti);
+mat = zeros(n,2);
+
+for i = 1:n
+    idxs = find(quanti==i);
+    mat(i,:) = [length(idxs), mean(vec(idxs)) ];
+end
+
+format short g
+mat
+
+%%  GRAFICO 2D PER CLUSTERS
+
+subplot(2,1,1);
+M = var_clusters; mu_values = linspace(0.5,0.05,10);
+% ----- Script: plot2D_mat_professionale_fixed.m -----
+figure('Color','w','Position',[100 100 800 500]);
+hold on;
+
+% Prepara la mappa colori
+nMU   = size(M,1);
+cmap  = parula(nMU);
+
+% Disegna ciascuna curva
+for i = 1:nMU
+    plot(epsilon, M(i,:), ...
+        'LineWidth',1.8, ...
+        'Color',cmap(i,:), ...
+        'DisplayName',sprintf('\\mu = %.2f',mu_values(i)));
+end
+
+% Styling accademico
+xlabel('$\epsilon$','Interpreter','latex','FontSize',14);
+ylabel('Valore','Interpreter','latex','FontSize',14);
+title('Andamento di M(i,:) in funzione di $\epsilon$','Interpreter','latex','FontSize',16);
+set(gca, ...
+    'FontName','Times New Roman', ...
+    'FontSize',12, ...
+    'LineWidth',1);
+grid on; box on;
+
+% Legend esterna
+lh = legend('Location','northeastoutside');
+set(lh,'Interpreter','latex','FontSize',12);
+
+% Colorbar che rimappa i mu_values
+c = colorbar('eastoutside');
+colormap(parula);
+c.Ticks      = linspace(0,1,nMU);
+c.TickLabels = arrayfun(@(x) sprintf('%.2f',x), mu_values,'UniformOutput',false);
+c.Label.String       = '$\mu$';
+c.Label.Interpreter  = 'latex';
+c.Label.FontSize     = 14;
+
+
+%%
+
+% ----- Script: plot3D_surface_professionale_fixed.m -----
+figure('Color','w','Position',[150 150 900 600]);
+
+% Griglia 2D di punti (epsilon, mu)
+[EPS, MU] = meshgrid(epsilon, mu_values);
+
+% Surface plot
+hSurf = surf(EPS, MU, M, ...
+    'EdgeColor','none', ...
+    'FaceColor','interp');
+
+% Miglioramenti grafici
+shading interp;                % interpolazione liscia
+colormap(turbo);               % scala colori vivida
+c = colorbar;                  % barra dei colori
+c.Label.String       = 'Valore M'; 
+c.Label.Interpreter  = 'latex';  % se vuoi anche qui LaTeX
+c.Label.FontSize     = 14;
+
+% Luci e vista
+view(45,30);
+
+% Label e stile assi
+xlabel('$\epsilon$','Interpreter','latex','FontSize',14);
+ylabel('$\mu$','Interpreter','latex','FontSize',14);
+zlabel('Valore','Interpreter','latex','FontSize',14);
+title('Surface plot di M in funzione di $\epsilon$ e $\mu$',...
+    'Interpreter','latex','FontSize',16);
+
+set(gca, ...
+    'FontName','Times New Roman', ...
+    'FontSize',12, ...
+    'LineWidth',1);
+grid on; box on;
+axis tight;
+
+% Esporta ad alta risoluzione
+print(gcf,'grafico3D_fixed.png','-dpng','-r300');
