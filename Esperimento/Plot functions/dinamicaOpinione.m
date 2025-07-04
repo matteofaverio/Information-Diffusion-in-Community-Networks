@@ -23,16 +23,18 @@ end
 % Grafico 3D della densità
 figure;
 opdin = surf(Xgrid, Ygrid, H);   % 'EdgeColor' per una superficie liscia
+view(-45,30)
 set(opdin, 'EdgeColor', 'none')
 % Etichette e stile
-xlabel('Iterazione');
-ylabel('Valore Opinione');
-zlabel('Frequenza');
-title('Distribuzione dei Valori nel Tempo (3D)');
+xlabel('Iterazione','Interpreter','latex');
+ylabel('Valore Opinione','Interpreter','latex');
+zlabel('Numero di nodi con opinione','Interpreter','latex');
+title("Evoluzione dell'opinione",'Interpreter','latex');
 colormap(turbo);             % Mappa colori per la superficie (facoltativo)
-colorbar;                    % Colore aggiuntivo (utile, ma opzionale)
-view(45, 30);                % Angolo di vista 3D
+view(-45, 30);                % Angolo di vista 3D
 shading interp;              % Smussa la superficie
+zlim([0,2000])
+xlim([0,T])
 grid on;
 
 if flag == 1
