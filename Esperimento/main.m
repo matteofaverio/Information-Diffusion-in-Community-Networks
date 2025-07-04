@@ -1,17 +1,51 @@
- %% ISTOGRAMMA3D CON OPINIONI FINALI AL VARIARE DI EPSILON
+% 1) Trova il percorso reale di questo script
+if usejava('desktop')                          % sessione desktop
+    doc = matlab.desktop.editor.getActive;     % documento aperto in Editor
+    if ~isempty(doc) && ~isempty(doc.Filename) % file salvato su disco
+        scriptPath = doc.Filename;             % ← percorso reale
+    end
+end
 
-histOpsVSEps('test_mu050_processed');
+% 2) Se non arriva dall'Editor, prova con mfilename (funziona in CLI/run)
+if ~exist('scriptPath','var') || isempty(scriptPath)
+    tmp = mfilename('fullpath');
+    if ~isempty(tmp)
+        scriptPath = tmp;
+    else
+        % 3) Ultima risorsa: assumi che main.m sia nella Current Folder
+        scriptPath = fullfile(pwd,'main.m');
+    end
+end
+
+projDir  = fileparts(scriptPath);              % cartella del progetto
+subDirs  = {'Network&Test functions','Data','Results','Plot functions'};       % quelle da aggiungere
+
+for k = 1:numel(subDirs)
+    thisDir = fullfile(projDir, subDirs{k});
+    if exist(thisDir,'dir')
+        addpath(thisDir);                      % oppure addpath(genpath(thisDir))
+    else
+        warning('La cartella "%s" non esiste.', thisDir);
+    end
+end
+
+clear doc tmp scriptPath projDir subDirs k     % pulizia variabili
+%% ISTOGRAMMA3D CON OPINIONI FINALI AL VARIARE DI EPSILON
+
+histOpsVSEps('test_mu050_processed',0.5);
+
 
 %%
-histOpsVSEps('test_mu055_processed');
-histOpsVSEps('test_mu060_processed');
-histOpsVSEps('test_mu065_processed');
-histOpsVSEps('test_mu070_processed');
-histOpsVSEps('test_mu075_processed');
-histOpsVSEps('test_mu080_processed');
-histOpsVSEps('test_mu085_processed');
-histOpsVSEps('test_mu090_processed');
-histOpsVSEps('test_mu095_processed');
+histOpsVSEps('test_mu050_processed',0.5);
+% histOpsVSEps('test_mu055_processed');
+% histOpsVSEps('test_mu060_processed');
+histOpsVSEps('test_mu065_processed',0.35);
+% histOpsVSEps('test_mu070_processed');
+% histOpsVSEps('test_mu075_processed');
+histOpsVSEps('test_mu080_processed',0.2);
+histOpsVSEps('test_mu085_processed',0.15);
+histOpsVSEps('test_mu090_processed',0.1);
+histOpsVSEps('test_mu095_processed',0.05);
 
 
 %% PLOT 25 ISTOGRAMMI (PIANI DI TAGLIO DI OPSvsEPS)

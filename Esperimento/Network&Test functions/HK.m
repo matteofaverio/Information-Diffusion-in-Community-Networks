@@ -12,7 +12,7 @@ function [opinionHistory iteration] = HK(A, W, initialOpinions, confidence)
 %   totalIterations - number of iterations until convergence
 %   opinionHistory - matrix storing opinion evolution over time
 
-n = 1e4;
+n = size(A,1);
 tolerance = 1e-1;
 maxIterations = 1e4;
 opinionChange = 10;
@@ -37,7 +37,7 @@ while opinionChange > tolerance && iteration < maxIterations
         neighbors = neighborsCell{i};
         % Identify influencers: neighbors whose opinions are within the confidence threshold.
         opinionDifferences = abs(currentOpinions(neighbors) - currentOpinions(i));
-        withinConfidence = opinionDifferences < confidence;
+        withinConfidence = opinionDifferences < confidence(i);
         influencers = neighbors(withinConfidence);
         numInfluencers = length(influencers);
         

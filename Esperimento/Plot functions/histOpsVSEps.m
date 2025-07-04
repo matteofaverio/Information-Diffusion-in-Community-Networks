@@ -1,10 +1,21 @@
-function histOpsVSEps(folderName)
+function histOpsVSEps(folderName, mu)
 % plotEpsilonDistribution  Istogramma 3D dello stato finale vs epsilon
 %   plotEpsilonDistribution(folderName) carica tutti i .mat in folderName,
 %   estrae dalle 200 matrici in ciascun file l'ultima colonna (stato finale),
 %   calcola per ogni ε la frequenza normalizzata sui bin in [0,1], media su
 %   tutti i test, e infine la visualizza con parallelepipedi 3D (bar3).
 %   Mantiene la scala colori per l'asse z.
+
+    if ~isfolder(folderName)
+        % tenta di risolvere folderName come folder in MATLAB path
+        p = which(folderName);
+        if isempty(p)
+            error('Cartella %s non trovata né come directory né sul path.', folderName);
+        else
+            folderName = fileparts(p);  % prende la directory in cui risiede un .m con quel nome
+        end
+    end
+
 
     % --- Parametri ---
     epsilons   = 0.01:0.01:0.25;      % 25 valori di epsilon
@@ -38,7 +49,7 @@ function histOpsVSEps(folderName)
             d   = histcounts(col, binEdges, 'Normalization','probability');
             sumDist = sumDist + d';
         end
-        histDist(:,i) = sumDist ./ numel(C);
+        histDist(:,i) = sumDist /200;
     end
 
     % --- Colormap personalizzata ---
@@ -63,11 +74,11 @@ function histOpsVSEps(folderName)
     end
 
     % etichette e vista
-    xlabel('Media opinioni finali','FontSize',12);
-    ylabel('\epsilon','FontSize',12);
-    zlabel('Frequenza media','FontSize',12);
-    title('Distribuzione dello stato finale vs \epsilon (Istogramma 3D)','FontSize',14);
-    view(270,90);
+    xlabel('Media opinioni finali','FontSize',12,'Interpreter','latex');
+    ylabel('$\varepsilon$','FontSize',12,'Interpreter','latex');
+    zlabel('Frequenza media','FontSize',12,'Interpreter','latex');
+    title(['Distribuzione dello stato finale vs $\varepsilon$($\mu = $',num2str(mu), ')'],'FontSize',14,'Interpreter','latex');
+    view(-135,30)
     grid on;
 
     % scala colori
@@ -94,6 +105,7 @@ function histOpsVSEps(folderName)
     set(gca, ...
     'XLim',   [0.5,        nBins+0.5], ...
     'YLim',   [0.5,        nEps+0.5], ...
+    'ZLim',   [0, 1],...
     'XTick',  posX, ...
     'XTickLabel', etichetteX, ...
     'YTick',  posY, ...
@@ -101,6 +113,5 @@ function histOpsVSEps(folderName)
     'Box',    'on', ...
     'ZGrid',  'off', ...
     'Layer',  'top');
-
 
 end

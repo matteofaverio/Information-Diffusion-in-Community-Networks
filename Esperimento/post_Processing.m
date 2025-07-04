@@ -23,7 +23,7 @@ if ~exist('scriptPath','var') || isempty(scriptPath)
 end
 
 projDir  = fileparts(scriptPath);              % cartella del progetto
-subDirs  = {'Network','Data','Results'};       % quelle da aggiungere
+subDirs  = {'Network&Test functions','Data','Results','Plot functions'};       % quelle da aggiungere
 
 for k = 1:numel(subDirs)
     thisDir = fullfile(projDir, subDirs{k});
@@ -54,7 +54,7 @@ for i = 1:t
     flag = true;
     tic
     while flag
-    [A,~,c,dd] = LFR2(n,d,mu(i),gamma, gamma_c, d_min);
+    [A,~,c,dd] = LFR(n,d,mu(i),gamma, gamma_c, d_min);
     flag = sum(sum(isnan(A))) > 0;
     end
     toc
@@ -69,10 +69,10 @@ for i = 1:t
     confidence = epsilon(j)*ones(n,1); % LIVELLI DI CONFIDENZA
     % agents = randi([1,n],0,1);
     tic
-    [finalOpinions, it, opinionHistory] = HK(A, W, opin, confidence); % DIFFUSIONE
+    [opinionHistory, it] = HK(A, W, opin, confidence); % DIFFUSIONE
     toc
     % 
-    % TEST{i}{j} = opinionHistory;
+    TEST{i,j} = opinionHistory;
     % fprintf('mu = %d , eps = %d \n',mu(i),epsilon(j));
 
     end
@@ -81,7 +81,7 @@ for i = 1:t
 end
 
 %% Test dei grafici
-op = TEST{1}{1};
-dinamicaOpinione(op,1)
-plotOpinionBins(op,0.002,1)
-heatmap2D(op)
+op = TEST{1,1};
+dinamicaOpinione(op,0)
+% plotOpinionBins(op,0.002,1)
+% heatmap2D(op)
