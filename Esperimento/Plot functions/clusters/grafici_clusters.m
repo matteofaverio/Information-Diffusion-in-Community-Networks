@@ -15,7 +15,7 @@
 
 % selezionare M come matrice che si vuole plottare, ad esempio n_clusters
 
-M = n_clusters; %
+M = outliers; %
 
 %%  GRAFICO 2D PER CLUSTERS
 
@@ -66,38 +66,39 @@ c.Label.FontSize    = 14;
 
 %%
 
-% ----- Script: plot3D_surface_professionale_fixed.m -----
+% ----- Script: plot3D_surface_con_grid.m -----
 figure('Color','w','Position',[150 150 900 600]);
+hold on;
 
 % Griglia 2D di punti (epsilon, mu)
 [EPS, MU] = meshgrid(epsilon, mu_values);
 
-% Surface plot
-hSurf = surf(EPS, MU, M, ...
-    'EdgeColor','none', ...
-    'FaceColor','interp');
+% Surface plot con bordi neri
+hSurf = surf( EPS, MU, M, ...
+    'FaceColor','interp', ...   % colore interpolato sui vertici
+    'EdgeColor','k', ...        % bordi neri lungo la griglia dati
+    'LineWidth',0.5 );          % spessore linea sottile
 
-% Miglioramenti grafici
-shading interp;                % interpolazione liscia
-colormap(turbo);               % scala colori vivida
-c = colorbar;                  % barra dei colori
-c.Label.String       = 'Valore M'; 
-c.Label.Interpreter  = 'latex';  % se vuoi anche qui LaTeX
-c.Label.FontSize     = 14;
+% Colormap e colorbar
+colormap(turbo);
+c = colorbar;                  
+c.Label.String      = 'Valore M';
+c.Label.Interpreter = 'latex';
+c.Label.FontSize    = 14;
 
 view(45,30);
 
-% Label e stile assi
+% Etichette con LaTeX
 xlabel('$\epsilon$','Interpreter','latex','FontSize',14);
 ylabel('$\mu$','Interpreter','latex','FontSize',14);
 zlabel('Valore','Interpreter','latex','FontSize',14);
-title('Surface plot di M in funzione di $\epsilon$ e $\mu$',...
+title('Surface plot di M con griglia nera in funzione di $\epsilon$ e $\mu$',...
     'Interpreter','latex','FontSize',16);
 
+% Styling assi
 set(gca, ...
     'FontName','Times New Roman', ...
     'FontSize',12, ...
     'LineWidth',1);
-grid on; box on;
+grid on; box on;  % mantiene anche la griglia di riferimento dell’asse
 axis tight;
-
