@@ -1,4 +1,4 @@
-function [H, BC, CI] = community_plots(folderName)
+function [H, BC, CI] = community_plots_artigianale(folderName)
 
 % caricamento dati
 mus   = 0.5:-0.05:0.05;      % 10 valori di mu
@@ -20,11 +20,17 @@ for i = 1:nMus
     S = load(fullfile(folderName, names{i}));
     fn = fieldnames(S);
     results = S.(fn{1});
-
     indexes = fieldnames(results);
-    H(i,:) = mean(results.(indexes{1}),1);
-    CI(i,:) = mean(results.(indexes{2}),1);
-    BC(i,:) = mean(results.(indexes{3}),1);
+
+    for j = 1:numel(epsilon)
+        h(:,j) = results.(indexes{1}){j};
+        ci(:,j) = results.(indexes{2}){j};
+        bc(:,j) = results.(indexes{3}){j};
+    end
+    
+    H(i,:) = mean(h,1);
+    CI(i,:) = mean(ci,1);
+    BC(i,:) = mean(bc,1);
 end
 
 %% ----- Script: plot3D_surface_professionale_fixed.m -----
@@ -52,9 +58,9 @@ c = colorbar;                  % barra dei colori
 view(45,30);
 
 % Label e stile assi
-xlabel('$\varepsilon$','Interpreter','latex','FontSize',20);
-ylabel('$\mu$','Interpreter','latex','FontSize',20);
-zlabel('Shannon Entropy','Interpreter','latex','FontSize',20);
+xlabel('$\varepsilon$','Interpreter','latex','FontSize',14);
+ylabel('$\mu$','Interpreter','latex','FontSize',14);
+zlabel('Shannon Entropy','Interpreter','latex','FontSize',14);
 title('Shannon Entropy in funzione di $\varepsilon$ e $\mu$',...
     'Interpreter','latex','FontSize',16);
 
@@ -90,9 +96,9 @@ c = colorbar;                  % barra dei colori
 view(45,30);
 
 % Label e stile assi
-xlabel('$\varepsilon$','Interpreter','latex','FontSize',20);
-ylabel('$\mu$','Interpreter','latex','FontSize',20);
-zlabel('Bimodality Coefficient','Interpreter','latex','FontSize',20);
+xlabel('$\varepsilon$','Interpreter','latex','FontSize',14);
+ylabel('$\mu$','Interpreter','latex','FontSize',14);
+zlabel('Bimodality Coefficient','Interpreter','latex','FontSize',14);
 title('Bimodality Coefficient in funzione di $\varepsilon$ e $\mu$',...
     'Interpreter','latex','FontSize',16);
 

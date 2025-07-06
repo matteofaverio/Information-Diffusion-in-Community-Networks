@@ -38,7 +38,8 @@ function [ci, H, bc] = stats_corrette(op, grp, edges)
     % 3) Bimodality Coefficient (con bias-correction, IDENTICO ALL'ORIGINALE)
     % Usiamo splitapply con le funzioni native di MATLAB, è veloce e garantisce
     % la correttezza del calcolo (inclusa la bias correction).
-    fcn_bc = @(x) (kurtosis(x, 1) / (skewness(x, 1)^2 + 1));
+    % fcn_bc = @(x) (kurtosis(x, 1) / (skewness(x, 1)^2 + 1));
+    fcn_bc = @(x) ( (kurtosis(x, 1) - 2) ./ (skewness(x, 1).^2 + 1) );
     bc = splitapply(fcn_bc, op, grp);
     
     % Assicura che l'output sia un vettore colonna della dimensione giusta,

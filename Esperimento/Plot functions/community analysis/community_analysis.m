@@ -73,7 +73,7 @@ for i = 1:nmus
     results = community_breakdown_definitivo(folderName);
 
     % path dove salvare
-    folder = 'C:\Users\giogu\OneDrive - Politecnico di Milano\Desktop\Poli\Terzo anno\Tesi\Information-Diffusion-in-Community-Networks\Esperimento\Plot functions\community analysis\risultati analisi Gemini';
+    folder = 'C:\Users\giogu\OneDrive - Politecnico di Milano\Desktop\Poli\Terzo anno\Tesi\Information-Diffusion-in-Community-Networks\Esperimento\Plot functions\community analysis\risultati analisi BC modificata';
     if ~exist(folder,'dir')
         mkdir(folder);
     end
@@ -90,7 +90,12 @@ toc
 %%
 clc, clear,close all
 folderName = 'risultati analisi Gemini';
-community_plots(folderName)
 
-
+[H, BC, CI] = community_plots(folderName);
+%%
+plot_H_BC(H,BC)
+%%
+clc, clear
+folderName = 'risultati analisi';
+community_plots_artigianale(folderName)
 
