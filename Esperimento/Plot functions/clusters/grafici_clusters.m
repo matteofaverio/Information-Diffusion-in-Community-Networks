@@ -15,7 +15,8 @@
 
 % selezionare M come matrice che si vuole plottare, ad esempio n_clusters
 
-M = outliers; %
+M1 = meanH; %
+M2 = meanL;
 
 %%  GRAFICO 2D PER CLUSTERS
 
@@ -28,6 +29,60 @@ hold on;
 % Prepara la mappa colori
 nMU   = size(M,1);
 cmap  = parula(nMU);
+xlim([0, 0.25]);
+
+% Disegna ciascuna curva con legend in math-mode
+for i = 1:nMU
+    plot(epsilon, M1(i,:), ...
+        'LineWidth',1.8, ...
+        'Color',cmap(i,:), ...
+        'DisplayName',sprintf('$\\mu = %.2f$' , mu_values(i)));
+end
+
+for i = 1:nMU
+    plot(epsilon, M2(i,:), ...
+        'LineWidth',1.8, ...
+        'Color',cmap(i,:), ...
+        'DisplayName',sprintf('$\\mu = %.2f$' , mu_values(i)),'HandleVisibility','off');
+end
+
+set(gca, ...
+    'FontName','Times New Roman', ...
+    'FontSize',18, ...
+    'LineWidth',1);
+grid on; box on;
+
+% Legend esterna con interpreter LaTeX
+lh = legend('Location','northeastoutside');
+set(lh, ...
+    'Interpreter','latex', ...
+    'FontSize',16);
+xlabel('$\varepsilon$','Interpreter','latex','FontSize',24);
+ylabel('opinione media degli \emph{outlier}','Interpreter','latex','FontSize',20);
+
+% Colorbar che rimappa i mu_values
+%{
+c = colorbar('eastoutside');
+colormap(parula);
+c.Ticks      = linspace(0,1,nMU);
+c.TickLabels = arrayfun(@(x) sprintf('%.2f',x), mu_values,'UniformOutput',false);
+c.Label.String      = '$\mu$';
+c.Label.Interpreter = 'latex';
+c.Label.FontSize    = 14;
+%}
+
+
+%%
+
+mu_values = linspace(0.5,0.05,10);
+epsilon = linspace(0.01,0.25,25);
+% ----- Script: plot2D_mat_professionale_fixed_legend.m -----
+figure('Color','w','Position',[100 100 800 500]);
+hold on;
+
+% Prepara la mappa colori
+nMU   = size(M,1);
+cmap  = cool(nMU);
 
 % Disegna ciascuna curva con legend in math-mode
 for i = 1:nMU
@@ -38,31 +93,21 @@ for i = 1:nMU
 end
 
 % Styling accademico
-xlabel('$\epsilon$','Interpreter','latex','FontSize',14);
-ylabel('Valore','Interpreter','latex','FontSize',14);
-title('Andamento di M(i,:) in funzione di $\epsilon$','Interpreter','latex','FontSize',16);
+
 set(gca, ...
     'FontName','Times New Roman', ...
-    'FontSize',12, ...
+    'FontSize',18, ...
     'LineWidth',1);
 grid on; box on;
+xlim([0, 0.25]);
 
 % Legend esterna con interpreter LaTeX
-lh = legend('Location','northeastoutside');
+lh = legend('Location','northeast');
 set(lh, ...
     'Interpreter','latex', ...
-    'FontSize',12);
-
-% Colorbar che rimappa i mu_values
-c = colorbar('eastoutside');
-colormap(parula);
-c.Ticks      = linspace(0,1,nMU);
-c.TickLabels = arrayfun(@(x) sprintf('%.2f',x), mu_values,'UniformOutput',false);
-c.Label.String      = '$\mu$';
-c.Label.Interpreter = 'latex';
-c.Label.FontSize    = 14;
-
-
+    'FontSize',16);
+xlabel('$\varepsilon$','Interpreter','latex','FontSize',24);
+ylabel('varianza del \# cluster','Interpreter','latex','FontSize',20);
 
 %%
 
@@ -79,26 +124,25 @@ hSurf = surf( EPS, MU, M, ...
     'EdgeColor','k', ...        % bordi neri lungo la griglia dati
     'LineWidth',0.5 );          % spessore linea sottile
 
+
 % Colormap e colorbar
-colormap(turbo);
+colormap(parula);
 c = colorbar;                  
-c.Label.String      = 'Valore M';
-c.Label.Interpreter = 'latex';
-c.Label.FontSize    = 14;
+
 
 view(45,30);
 
 % Etichette con LaTeX
-xlabel('$\epsilon$','Interpreter','latex','FontSize',14);
+xlabel('$\varepsilon$','Interpreter','latex','FontSize',14);
 ylabel('$\mu$','Interpreter','latex','FontSize',14);
-zlabel('Valore','Interpreter','latex','FontSize',14);
-title('Surface plot di M con griglia nera in funzione di $\epsilon$ e $\mu$',...
-    'Interpreter','latex','FontSize',16);
 
 % Styling assi
 set(gca, ...
     'FontName','Times New Roman', ...
-    'FontSize',12, ...
+    'FontSize',18, ...
     'LineWidth',1);
 grid on; box on;  % mantiene anche la griglia di riferimento dell’asse
 axis tight;
+
+xlabel('$\varepsilon$','Interpreter','latex','FontSize',24);
+
