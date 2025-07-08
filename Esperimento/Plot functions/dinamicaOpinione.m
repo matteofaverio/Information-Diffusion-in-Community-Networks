@@ -26,10 +26,10 @@ opdin = surf(Xgrid, Ygrid, H);   % 'EdgeColor' per una superficie liscia
 view(-45,30)
 set(opdin, 'EdgeColor', 'none')
 % Etichette e stile
-xlabel('Iterazione','Interpreter','latex');
-ylabel('Valore Opinione','Interpreter','latex');
-zlabel('Numero di nodi con opinione','Interpreter','latex');
-title("Evoluzione dell'opinione",'Interpreter','latex');
+xlabel('Iterazione','Interpreter','latex','FontSize',15);
+ylabel('Valore Opinione','Interpreter','latex','FontSize',15);
+zlabel('Numero di nodi con opinione','Interpreter','latex','FontSize',15);
+title("Evoluzione dell'opinione",'Interpreter','latex','FontSize',15);
 colormap(turbo);             % Mappa colori per la superficie (facoltativo)
 view(-45, 30);                % Angolo di vista 3D
 shading interp;              % Smussa la superficie

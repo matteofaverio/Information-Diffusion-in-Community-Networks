@@ -52,15 +52,15 @@ c = colorbar;                  % barra dei colori
 view(45,30);
 
 % Label e stile assi
-xlabel('$\varepsilon$','Interpreter','latex','FontSize',20);
-ylabel('$\mu$','Interpreter','latex','FontSize',20);
+xlabel('$\varepsilon$','Interpreter','latex','FontSize',40);
+ylabel('$\mu$','Interpreter','latex','FontSize',40);
 zlabel('Shannon Entropy','Interpreter','latex','FontSize',20);
 title('Shannon Entropy in funzione di $\varepsilon$ e $\mu$',...
     'Interpreter','latex','FontSize',16);
 
 set(gca, ...
     'FontName','Times New Roman', ...
-    'FontSize',12, ...
+    'FontSize',20, ...
     'LineWidth',1);
 grid on; box on;
 axis tight;
@@ -90,55 +90,19 @@ c = colorbar;                  % barra dei colori
 view(45,30);
 
 % Label e stile assi
-xlabel('$\varepsilon$','Interpreter','latex','FontSize',20);
-ylabel('$\mu$','Interpreter','latex','FontSize',20);
+xlabel('$\varepsilon$','Interpreter','latex','FontSize',40);
+ylabel('$\mu$','Interpreter','latex','FontSize',40);
 zlabel('Bimodality Coefficient','Interpreter','latex','FontSize',20);
 title('Bimodality Coefficient in funzione di $\varepsilon$ e $\mu$',...
     'Interpreter','latex','FontSize',16);
 
 set(gca, ...
     'FontName','Times New Roman', ...
-    'FontSize',12, ...
+    'FontSize',20, ...
     'LineWidth',1);
 grid on; box on;
 axis tight;
 
-%% ----- Script: plot3D_surface_professionale_fixed.m -----
-figure('Color','w')%,'Position',[150 150 900 600]);
 
-% Griglia 2D di punti (epsilon, mu)
-[EPS, MU] = meshgrid(epsilon, mus);
-
-% Surface plot
-% hSurf = surf(EPS, MU, H, ...
-%     'EdgeColor','k', ...
-%     'FaceColor','interp');
-
-% Surface plot con bordi neri
-hSurf = surf( EPS, MU, CI, ...
-    'FaceColor','interp', ...   % colore interpolato sui vertici
-    'EdgeColor','k', ...        % bordi neri lungo la griglia dati
-    'LineWidth',0.5 );          % spessore linea sottile
-
-
-% Miglioramenti grafici
-colormap(jet);               % scala colori vivida
-c = colorbar;                  % barra dei colori
-
-view(45,30);
-
-% Label e stile assi
-xlabel('$\varepsilon$','Interpreter','latex','FontSize',14);
-ylabel('$\mu$','Interpreter','latex','FontSize',14);
-zlabel('Centrality Index','Interpreter','latex','FontSize',14);
-title('Centrality Index in funzione di $\varepsilon$ e $\mu$',...
-    'Interpreter','latex','FontSize',16);
-
-set(gca, ...
-    'FontName','Times New Roman', ...
-    'FontSize',12, ...
-    'LineWidth',1);
-grid on; box on;
-axis tight;
 end
 

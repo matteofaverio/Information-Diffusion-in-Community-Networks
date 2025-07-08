@@ -116,9 +116,13 @@ function [ci, H, bc] = stats_corrette(op, grp, edges)
     % 3) Bimodality Coefficient (con bias-correction, IDENTICO ALL'ORIGINALE)
     % Usiamo splitapply con le funzioni native di MATLAB, è veloce e garantisce
     % la correttezza del calcolo (inclusa la bias correction).
-    % fcn_bc = @(x) (kurtosis(x, 1) / (skewness(x, 1)^2 + 1));
-    fcn_bc = @(x) ( (kurtosis(x, 1) - 2) ./ (skewness(x, 1).^2 + 1) );
-    bc = splitapply(fcn_bc, op, grp);
+
+    fcn_bc = @(x) ((skewness(x, 1)^2 + 1) / kurtosis(x, 0));
+    % fcn_bc = @(x) ((skewness(x, 1)^2 + 1) / kurtosis(x, 1)); 
+    % fcn_bc = @(x) ( (kurtosis(x, 1) - 2) ./ (skewness(x, 1).^2 + 1) );
+    % bc = splitapply(fcn_bc, op, grp);
+    bc = splitapply(@robust_bc, op, grp);
+    
     
     % Assicura che l'output sia un vettore colonna della dimensione giusta,
     % riempiendo con NaN i gruppi non presenti in 'grp' ma inferiori a nCommMax.
@@ -126,4 +130,18 @@ function [ci, H, bc] = stats_corrette(op, grp, edges)
     unique_groups = unique(grp);
     temp_bc(unique_groups) = bc;
     bc = temp_bc;
+end
+
+function bc_val = robust_bc(x)
+    % Controlla se la varianza è quasi zero (per sicurezza con i numeri floating-point)
+    if var(x) < 1e-10 
+        % Se la varianza è zero, la distribuzione è perfettamente unimodale.
+        bc_val = 5/9; 
+        return;
+    end
+
+    % Se la varianza non è zero, procedi con il calcolo standard
+    g = skewness(x, 1);
+    k = kurtosis(x, 0);
+    bc_val = (g^2 + 1) / k;
 end

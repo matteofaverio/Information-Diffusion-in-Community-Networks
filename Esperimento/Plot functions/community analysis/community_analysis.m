@@ -73,7 +73,7 @@ for i = 1:nmus
     results = community_breakdown_definitivo(folderName);
 
     % path dove salvare
-    folder = 'C:\Users\giogu\OneDrive - Politecnico di Milano\Desktop\Poli\Terzo anno\Tesi\Information-Diffusion-in-Community-Networks\Esperimento\Plot functions\community analysis\risultati analisi BC modificata';
+    folder = 'C:\Users\giogu\OneDrive - Politecnico di Milano\Desktop\Poli\Terzo anno\Tesi\Information-Diffusion-in-Community-Networks\Esperimento\Plot functions\community analysis\risultati analisi Gemini';
     if ~exist(folder,'dir')
         mkdir(folder);
     end

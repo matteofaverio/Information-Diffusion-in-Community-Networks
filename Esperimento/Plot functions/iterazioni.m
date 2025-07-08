@@ -14,6 +14,7 @@ function iterazioni(main_folder)
     % Define x-axis values and mu list
     x = 0.01:0.01:0.25;                % 25 points
     mu_values = 0.5:0.05:0.95;         % 10 mu values
+    nMU = length(mu_values);
     legend_entries = arrayfun(@(m) sprintf('\\mu = %.2f', m), mu_values, 'UniformOutput', false);
     
     % Get subfolder list
@@ -25,6 +26,7 @@ function iterazioni(main_folder)
 
     figure;
     hold on;
+    cmap  = parula(nMU);
     % Loop over subfolders
     for i = 1:min(numel(subdirs), numel(mu_values))
         sub_path = fullfile(main_folder, subdirs(i).name);
@@ -43,14 +45,13 @@ function iterazioni(main_folder)
             means_i(j) = mean(v);
         end
         % Plot this mu curve with specific color
-        plot(x, means_i, 'LineWidth', 1.5);
+        plot(x, means_i, 'LineWidth', 1.5,'Color',cmap(i,:));
     end
-    
     % Finalize plot
     hold off;
-    xlabel('x');
-    ylabel('Mean of third row');
-    title('Mean values per file for different \mu');
+    xlabel('$\varepsilon$','Interpreter','latex','FontSize',20);
+    ylabel('Numero di iterazioni','Interpreter','latex','FontSize',20);
+    title('Numero medio di iterazioni in funzione di $\varepsilon$','Interpreter','latex','FontSize',20);
     legend(legend_entries, 'Location', 'best');
     grid on;
 end

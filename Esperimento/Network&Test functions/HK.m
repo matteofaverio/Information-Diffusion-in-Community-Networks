@@ -13,7 +13,7 @@ function [opinionHistory iteration] = HK(A, W, initialOpinions, confidence)
 %   opinionHistory - matrix storing opinion evolution over time
 
 n = size(A,1);
-tolerance = 1e-2;
+tolerance = 1e-1;
 maxIterations = 1e4;
 opinionChange = 10;
 iteration = 0;

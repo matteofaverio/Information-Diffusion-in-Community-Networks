@@ -1,10 +1,10 @@
-
 %% Generazione Rete
-n = 1000;      
+clc, clear, close all
+n = 10000;      
 gamma = 3;
 gamma_c = 3;
-d = 39;
-d_min = 20;
+d = 55;
+d_min = 30;
 
 t = 1;
 TEST = cell(t,t);
@@ -28,7 +28,7 @@ confidence = epsilon*ones(n,1); % LIVELLI DI CONFIDENZA
 tic
 [opinionHistory, it] = HK(A, W, opin, confidence); % DIFFUSIONE
 toc
-% Grafici  consenso, polarizzazione e frammentazione dell'opinione
+%% Grafici  consenso, polarizzazione e frammentazione dell'opinione
 dinamicaOpinione(opinionHistory,0)
 %%
 % ---- INPUT -------------------------------------------------------------
@@ -82,7 +82,7 @@ colormap(lines(K));
 ax = gca;
 ax.XTick = [];
 ax.YTick = [];
-title('Visualizzazione del consenso nelle comunità','Interpreter','latex')
+title("Visualizzazione delle comunita'",'Interpreter','latex')
 
 %% Visualizzazione consenso nelle comunità
 % --- INPUT ---------------------------------------------------------------
@@ -134,21 +134,25 @@ h = plot(G, ...
     'XData',      XY(:,1), ...
     'YData',      XY(:,2), ...
     'NodeCData',  opinion, ...      % <-- qui colore secondo l'opinione
-    'MarkerSize', 2, ...
+    'MarkerSize', 3, ...
     'EdgeAlpha',  .1, ...
-    'LineWidth',  .15);
+    'LineWidth',  .25);
 
 % togli tick
 set(gca, 'XTick', [], 'YTick', []);
+axis('square')
 
 % colormap continua e scala [0,1]
-colormap(turbo);
+colormap("cool");
 clim([0 1]);
 
 % colorbar con etichette da 0 a 1
 hcb = colorbar;
 hcb.Ticks      = [0 0.5 1];
 hcb.TickLabels = {'0','0.5','1'};
-ylabel(hcb, 'Opinione', 'Interpreter','latex');
+ylabel(hcb, 'Opinione', 'Interpreter','latex','FontSize',15);
 
-title("Visualizzazione del consenso nelle comunita'",'Interpreter','latex')
+title("Visualizzazione del consenso nelle comunita'",'Interpreter','latex','fontSize',15)
+%% Grafici evoluzione opinione
+main_folder = 'Results';
+iterazioni(main_folder)
