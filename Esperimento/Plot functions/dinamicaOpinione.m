@@ -33,7 +33,7 @@ title("Evoluzione dell'opinione",'Interpreter','latex');
 colormap(turbo);             % Mappa colori per la superficie (facoltativo)
 view(-45, 30);                % Angolo di vista 3D
 shading interp;              % Smussa la superficie
-zlim([0,2000])
+zlim([0,N])
 xlim([0,T])
 grid on;
 
